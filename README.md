@@ -81,3 +81,11 @@ yarn dev
 - Mailtrap - https://mailtrap.io/signin
 - Nodemailer - https://www.nodemailer.com/
 - MongoDb Atlas - https://www.mongodb.com/cloud/atlas/register
+
+
+TO DO
+- Add RatePage
+  - Create models for rate
+  - Add Business Logics
+- Add shipping calculator
+- Lunch calculator
