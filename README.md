@@ -81,3 +81,152 @@ yarn dev
 - Mailtrap - https://mailtrap.io/signin
 - Nodemailer - https://www.nodemailer.com/
 - MongoDb Atlas - https://www.mongodb.com/cloud/atlas/register
+
+
+Busines Logics
+PARAMETERS
+- Rout = {origin_country: country_name, destination_country: country_name}
+- Options = [Express Door to door, Express Warehouse to Door, Fast Track, Consol, Sea]
+- Goods category = Has Battery, Has No battery, Contains food stuff,
+- import_rate_kg = dbValue
+- export_rate_kg = dbValue
+- Import_extra_half_kg_rate = dbValue
+- export_extra_half_kg_rate = dbValue
+- import_rate = dbValue
+- weight = dbValue
+- VAT = dbValue
+- sub_charge = dbValue
+- exchange_rate = dbValue
+
+
+
+
+
+{
+  _id: ObjectId,
+  name: "United Kingdom", // country name
+  code: "UK",             // optional ISO code
+
+  export: {
+    // Nigeria → UK (export)
+    availableOptions: ["Express", "Fast Track", "Console", "Sea"],
+    allowedGoods: ["Has Battery", "No Battery", "Contains Food Stuff"]
+    kgRates: {
+      "0.5": 10.0,
+      "1.0": 18.0,
+      "1.5": 26.0,
+      "2.0": 33.0,
+      "2.5": 40.0,
+      "3.0": 47.0,
+      "3.5": 54.0,
+      "4.0": 61.0,
+      "4.5": 68.0,
+      "5.0": 75.0
+    },
+    extraHalfKgRate: 6.0,
+    subChargePercent: 10,
+    vatPercent: 7.5,
+    exchangeRate: 1200, // for converting to Naira,
+    fastTrackRate: {
+      "1-5kg": "75000",
+      "6-10kg": "150000",
+      "above10kg": "9000",
+    },
+    consoleRate: {
+      "1-5kg": "75000",
+      "6-10kg": "150000",
+      "above10kg": "9000",
+    },
+    seaRate: 320,
+    20ftRate: 200,
+    40ftRate: 400,
+    customClearanceRate: 250,
+    
+  },
+
+  import: {
+    // UK → Nigeria (import)
+    availableOptions: ["Express", "Fast Track", "Console", "Sea"],
+    allowedGoods: ["Has Battery", "No Battery", "Contains Food Stuff"],
+    kgRates: {
+      "0.5": 12.0,
+      "1.0": 21.0,
+      "1.5": 30.0,
+      "2.0": 38.0,
+      "2.5": 45.0,
+      "3.0": 52.0,
+      "3.5": 59.0,
+      "4.0": 66.0,
+      "4.5": 73.0,
+      "5.0": 80.0
+    },
+    extraHalfKgRate: 7.0,
+    subChargePercent: 12,
+    vatPercent: 8,
+    exchangeRate: 1200,
+    fastTrackRate: {
+      "1-5kg": "75000",
+      "6-10kg": "150000",
+      "above10kg": "9000",
+    },
+    consoleRate: {
+      "1-5kg": "75000",
+      "6-10kg": "150000",
+      "above10kg": "9000",
+    },
+    seaRate: 300,
+    20ftRate: 200,
+    40ftRate: 400,
+    customClearanceRate: 250,
+  }
+}
+
+
+function calculateExpressShippingRate(route, option, weight, goods_category) {
+  const isExport = route.origin_country === 'Nigeria';
+  const isImport = route.destination_country === 'Nigeria';
+
+  const country_key = isExport ? route.destination_country : route.origin_country;
+  
+  // Fetch rates for the route, category, and option from DB
+  const base_rates_0_5kg = getRatesUpTo5Kg(country_key, option, goods_category); // Array of 0.5kg steps [rate_0.5kg, rate_1kg, ..., rate_5kg]
+  const extra_half_kg_rate = getExtraHalfKgRate(country_key, option, goods_category); // flat rate after 5kg
+  const vat = getVAT(country_key);
+  const sub_charge = getSubCharge(country_key);
+  const exchange_rate = getExchangeRate(country_key);
+
+  let total = 0;
+
+  if (weight <= 5) {
+    // Find the correct 0.5kg slab (e.g., 1.5kg = index 2 => base_rates_0_5kg[2])
+    const slabIndex = Math.ceil(weight / 0.5) - 1;
+    const base_rate = base_rates_0_5kg[slabIndex];
+
+    const sub = base_rate * sub_charge;
+    const vat_amount = base_rate * vat;
+
+    total = (base_rate + sub + vat_amount) * exchange_rate;
+  } else {
+    // Calculate for the first 5kg
+    const base_rate_5kg = base_rates_0_5kg[9]; // index for 5kg
+    const sub_5kg = base_rate_5kg * sub_charge;
+    const vat_5kg = base_rate_5kg * vat;
+    const total_5kg = (base_rate_5kg + sub_5kg + vat_5kg);
+
+    // Calculate extra half kg blocks after 5kg
+    const extra_weight = weight - 5;
+    const extra_blocks = Math.ceil(extra_weight / 0.5);
+    const extra_rate_total = extra_blocks * (extra_half_kg_rate + (extra_half_kg_rate * sub_charge) + (extra_half_kg_rate * vat));
+
+    total = (total_5kg + extra_rate_total) * exchange_rate;
+  }
+
+  return total;
+}
+
+
+
+ToDO
+- update database with model
+- create a form component for handling data per country
+- 

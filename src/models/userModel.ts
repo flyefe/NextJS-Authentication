@@ -1,3 +1,5 @@
+// This model can be used to store information about users.
+
 import mongoose from "mongoose";
 
 const userSChema = new mongoose.Schema({
@@ -22,6 +24,15 @@ const userSChema = new mongoose.Schema({
   isAdmin: {
     type: Boolean,
     default: false,
+  },
+  address: {
+    type: String,
+  },
+  phoneNumber: {
+    type: String,
+  },
+  NIN: {
+    type: String,
   },
   forgotPasswordToken: String,
   forgotPasswordTokenExpiry: Date,
