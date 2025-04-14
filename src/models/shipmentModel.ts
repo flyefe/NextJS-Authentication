@@ -3,6 +3,7 @@ import mongoose from 'mongoose'
 
 const ShipmentSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  routeId: { type: mongoose.Schema.Types.ObjectId, ref: 'Route', required: true },
   origin: {
     country: { type: String, required: true },
     city: { type: String, required: true },

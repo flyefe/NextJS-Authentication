@@ -1,0 +1,114 @@
+Plan for Admin Route Management UI
+================================================
+
+
+1. Backend
+----------
+
+You already have a `Route` model.
+I'll add API endpoints for:
+
+*   Listing all routes
+*   Creating a route
+*   Editing a route
+*   Deleting a route
+
+All endpoints will be admin-protected (JWT + `isAdmin` field on user).
+
+
+2. Frontend
+------------
+
+Create `/admin/routes` page.
+UI features:
+
+*   List all routes
+*   Add new route (form)
+*   Edit existing route (form)
+*   Delete route (button)
+
+Only accessible by admin users (middleware + UI check).
+
+
+Step 1: Add API Endpoints for Route Management
+--------------------------------------------
+
+Let's start by creating the API routes under `/api/admin/routes/`:
+
+*   `GET /api/admin/routes` - List all routes
+*   `POST /api/admin/routes` - Create new route
+*   `PUT /api/admin/routes/[id]` - Update route
+*   `DELETE /api/admin/routes/[id]` - Delete route
+
+All endpoints will:
+
+*   Check for a valid JWT in cookies
+*   Verify the user is an admin (`isAdmin: true` in user model)
+
+
+Step 2: Build the Admin UI
+-------------------------
+
+Create a new page: `/src/app/admin/routes/page.tsx`
+
+*   Display all routes in a table
+
+
+Plan for Admin Route Management UI
+1. Backend
+You already have a Route model.
+I’ll add API endpoints for:
+Listing all routes
+Creating a route
+Editing a route
+Deleting a route
+All endpoints will be admin-protected (JWT + isAdmin field on user).
+2. Frontend
+Create /admin/routes page.
+UI features:
+List all routes
+Add new route (form)
+Edit existing route (form)
+Delete route (button)
+Only accessible by admin users (middleware + UI check).
+Step 1: Add API Endpoints for Route Management
+Let’s start by creating the API routes under /api/admin/routes/:
+
+GET /api/admin/routes – List all routes
+POST /api/admin/routes – Create new route
+PUT /api/admin/routes/[id] – Update route
+DELETE /api/admin/routes/[id] – Delete route
+All endpoints will:
+
+Check for a valid JWT in cookies
+Verify the user is an admin (isAdmin: true in user model)
+Step 2: Build the Admin UI
+Create a new page: /src/app/admin/routes/page.tsx
+Display all routes in a table
+Provide forms for adding and editing
+Provide delete buttons
+Let’s start by checking your current API directory structure to see where to add these endpoints.
+
+Searched filesystem
+0 results
+Searchedfordirectoriesinc:/Users/EFE/Documents/NextAuth/NextJS-Authentication/src/app/apiwith pattern*admin*
+Analyzed
+c:\Users\EFE\Documents\NextAuth\NextJS-Authentication\src\app\api
+Your current API structure under src/app/api only has a users directory. To keep things organized and scalable, I recommend creating a new directory:
+src/app/api/admin/routes/
+This will house all the route management endpoints.
+
+Next Steps
+1. Create API Endpoints
+src/app/api/admin/routes/route.ts (for GET and POST)
+src/app/api/admin/routes/[id]/route.ts (for PUT and DELETE)
+Each endpoint will:
+
+Parse the JWT from cookies
+Check if the user is an admin (isAdmin: true)
+Perform the requested operation (CRUD)
+2. After API: Build the Admin UI
+Once the backend is ready, I’ll guide you through creating the /admin/routes page and components.
+
+Let’s proceed by creating the API endpoints for route management.
+Would you like to see the code for all four endpoints at once, or step-by-step (GET/POST first, then PUT/DELETE)?
