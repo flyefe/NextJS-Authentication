@@ -1,3 +1,5 @@
+// This function is used to connect to the MongoDB database.
+
 import mongoose from "mongoose";
 export async function connect() {
   try {

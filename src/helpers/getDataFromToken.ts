@@ -1,6 +1,8 @@
+// This function is used to extract user data from the JWT token.
 import { NextRequest } from "next/server";
 import jwt from "jsonwebtoken";
 
+// This function is used to extract user data from the JWT token.
 export const getDataFromToken = (request: NextRequest) => {
   try {
     const token = request.cookies.get("token")?.value || "";

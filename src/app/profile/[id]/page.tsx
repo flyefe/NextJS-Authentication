@@ -1,7 +1,8 @@
 import Link from "next/link"; // Import the Link component
-import React from "react";
+import React from "react"; // Import the React library
 
-const ProfileDetails = ({ params }: { params: any }) => {
+// Component definition
+const ProfileDetails = ({ params }: { params: any }) => { // This function is used to display the profile details.
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
       <div className="w-full max-w-lg p-8 space-y-6 bg-white rounded-xl shadow-lg text-center">

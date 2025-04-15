@@ -1,22 +1,25 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { Toaster, toast } from "react-hot-toast";
+// This line tells Next.js to use client-side rendering for this page.
+import React, { useEffect, useState } from "react"; // This function is used to create and manage state in React components.
+import { Toaster, toast } from "react-hot-toast"; // This function is used to display toast notifications.
 
-import Link from "next/link";
-import axios from "axios";
-import { useRouter } from "next/navigation";
+import Link from "next/link"; // This function is used to create links in Next.js.
+import axios from "axios"; // This function is used to make HTTP requests.
+import { useRouter } from "next/navigation"; // This function is used to navigate between pages.
 
+// Component definition
 const Login = () => {
   const router = useRouter();
 
-  const [user, setUser] = useState({
+  // State for form fields
+  const [user, setUser] = useState({ // This function is used to create and manage state in React components.
     email: "",
     password: "",
   });
-  const [isValidData, setIsValidData] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
+  const [isValidData, setIsValidData] = useState(false); // This function is used to validate the form data.
+  const [loading, setLoading] = useState(false); // This function is used to track the loading state of the form.
+  const [showPassword, setShowPassword] = useState(false); // This function is used to toggle the visibility of the password.
 
   const onLogin = async () => {
     try {
@@ -43,6 +46,7 @@ const Login = () => {
         </h1>
         <div className="space-y-4">
           <div>
+            {/* Email input */}
             <label
               htmlFor="email"
               className="text-sm font-medium text-gray-600"

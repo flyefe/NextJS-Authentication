@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
-import axios from 'axios';
-import { toast } from 'react-hot-toast';
+import { useState } from 'react'; // This function is used to create and manage state in React components.
+import axios from 'axios'; // This function is used to make HTTP requests.
+import { toast } from 'react-hot-toast'; // This function is used to display toast notifications.
 
 // Supported models and their fields
-type ModelType = 'route' | 'user' | 'shipment' | 'adminSettings' | 'auditLog' | 'country' | 'localRoute';
+type ModelType = 'route' | 'user' | 'shipment' | 'adminSettings' | 'auditLog' | 'country' | 'localRoute'; // This function is used to define the types of models that can be created or updated.
 
 // Add all discovered models and their fields here
 // Each field should match the backend model as closely as possible
@@ -79,11 +79,11 @@ const modelFields: Record<ModelType, { label: string; name: string; type: string
 
 // Generic form for create/update
 interface ModelFormProps {
-  model: ModelType;
-  mode?: 'create' | 'update';
-  initialValues?: Record<string, any>;
+  model: ModelType; // This function is used to define the type of model that is being created or updated.
+  mode?: 'create' | 'update'; // This function is used to define the mode of the form (create or update).
+  initialValues?: Record<string, any>; // This function is used to define the initial values of the form. (for update)
   id?: string; // Only needed for update
-  onSuccess?: () => void;
+  onSuccess?: () => void; // This function is used to define the callback function to be called when the form is successfully submitted.
 }
 
 /**
@@ -94,9 +94,9 @@ interface ModelFormProps {
  * - Pass `onSuccess` callback to refresh parent data.
  */
 const ModelCreateUpdateForm = ({
-  model = 'route',
-  mode = 'create',
-  initialValues = {},
+  model = 'route', // Default model is route
+  mode = 'create', // Default mode is create
+  initialValues = {}, // Default initial values is empty
   id,
   onSuccess,
 }: ModelFormProps) => {

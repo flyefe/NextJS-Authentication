@@ -1,15 +1,19 @@
-"use client";
+// This line tells Next.js to use client-side rendering for this page.
+"use client"; // Use client-side rendering
 
-import React, { useState } from "react";
+// Import React and hooks
+import React, { useState } from "react"; // This function is used to create and manage state in React components.
 
-import Link from "next/link";
-import axios from "axios";
-import { toast } from "react-hot-toast";
-import { useRouter } from "next/navigation";
+// Import Next.js components and hooks
+import Link from "next/link"; // This function is used to create links in Next.js.
+import axios from "axios"; // This function is used to make HTTP requests.
+import { toast } from "react-hot-toast"; // This function is used to display toast notifications.
+import { useRouter } from "next/navigation"; // This function is used to navigate between pages.
 
+// Component definition
 const ProfilePage = () => {
-  const router = useRouter();
-  const [data, setData] = useState();
+  const router = useRouter(); // This function is used to navigate between pages.
+  const [data, setData] = useState(); // This function is used to create and manage state in React components.
 
   const getUserDetails = async () => {
     try {
