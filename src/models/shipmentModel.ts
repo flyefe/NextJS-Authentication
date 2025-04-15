@@ -1,9 +1,10 @@
 import mongoose from 'mongoose'
 
-
+// Define the Shipment schema
 const ShipmentSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  routeId: { type: mongoose.Schema.Types.ObjectId, ref: 'Route', required: true },
+  routeId: { type: mongoose.Schema.Types.ObjectId, ref: 'Route', required: true }, // Unified route reference
+  // Removed: type (derive from Route.scope)
   origin: {
     country: { type: String, required: true },
     city: { type: String, required: true },
@@ -25,11 +26,10 @@ const ShipmentSchema = new mongoose.Schema({
   weightKg: { type: Number, required: true },
   volumeCbm: { type: Number, required: true },
   shippingOption: { type: String, enum: ['Express', 'Fast Track', 'Console'], required: true },
-  type: { type: String, enum: ['Local', 'International'], required: true },
-  localRouteId: { type: mongoose.Schema.Types.ObjectId, ref: 'LocalRoute' },
   totalCost: { type: Number, required: true },
   currency: { type: String, required: true },
   status: { type: String, enum: ['Pending', 'Processing', 'In Transit', 'Delivered', 'Cancelled'], default: 'pending' },
+  // Optionally keep localRouteSnapshot or shipmentSnapshot if needed for audit/history
   localRouteSnapshot: { type: Object },
   shipmentSnapshot: { type: Object },
   createdAt: { type: Date, default: Date.now },
@@ -41,4 +41,5 @@ const ShipmentSchema = new mongoose.Schema({
   }]
 }, { timestamps: true })
 
+// Export the Shipment model
 export default mongoose.models.Shipment || mongoose.model('Shipment', ShipmentSchema)

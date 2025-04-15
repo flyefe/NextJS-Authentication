@@ -99,7 +99,7 @@ const ProfileDetails = () => {
         {/* Account Info */}
         <div>
           <h2 className="text-lg font-semibold text-gray-700">Account Info</h2>
-          <div className="mt-2 space-y-1 text-gray-700">
+          <div className="mt-2 space-y-1">
             <div><b>Username:</b> {user.username}</div>
             <div><b>Email:</b> {user.email}</div>
             <div><b>Verified:</b> {user.isVerified ? "Yes" : "No"}</div>

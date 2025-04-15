@@ -9,7 +9,7 @@ type ModelType = 'route' | 'user' | 'shipment' | 'adminSettings' | 'auditLog' | 
 
 // Add all discovered models and their fields here
 // Each field should match the backend model as closely as possible
-const modelFields: Record<ModelType, { label: string; name: string; type: string; required?: boolean }[]> = {
+const modelFields: Record<ModelType, { label: string; name: string; type: string; required?: boolean; options?: { value: string; label: string }[] }[]> = {
   route: [
     { label: 'Origin Country', name: 'originCountry', type: 'text', required: true },
     { label: 'Origin City', name: 'originCity', type: 'text', required: true },
@@ -17,7 +17,25 @@ const modelFields: Record<ModelType, { label: string; name: string; type: string
     { label: 'Destination City', name: 'destinationCity', type: 'text', required: true },
     { label: 'Route Name', name: 'routeName', type: 'text' },
     { label: 'Description', name: 'description', type: 'text' },
-    { label: 'Route Type', name: 'routeType', type: 'text', required: true },
+    { label: 'Route Type', name: 'routeType', type: 'select', required: true, options: [
+      { value: 'intra-city', label: 'Intra-city' },
+      { value: 'inter-city', label: 'Inter-city' }
+    ] },
+    { label: 'Scope', name: 'scope', type: 'select', required: true, options: [
+      { value: 'local', label: 'Local' },
+      { value: 'international', label: 'International' }
+    ] },
+    // Local route-specific fields (conditionally required)
+    { label: 'Option', name: 'option', type: 'select', options: [
+      { value: 'Intra-city Express', label: 'Intra-city Express' },
+      { value: 'Standard', label: 'Standard' },
+      { value: 'Bike Delivery', label: 'Bike Delivery' },
+      { value: 'Same Day', label: 'Same Day' },
+      { value: 'Next Day', label: 'Next Day' }
+    ] },
+    { label: 'Kg Rates (JSON)', name: 'kgRates', type: 'text' },
+    { label: 'Extra Half Kg Rate', name: 'extraHalfKgRate', type: 'number' },
+    { label: 'VAT Percent', name: 'vatPercent', type: 'number' },
     { label: 'Active', name: 'active', type: 'checkbox' },
   ],
   user: [
@@ -33,17 +51,39 @@ const modelFields: Record<ModelType, { label: string; name: string; type: string
   shipment: [
     { label: 'User ID', name: 'userId', type: 'text', required: true },
     { label: 'Route ID', name: 'routeId', type: 'text', required: true },
-    { label: 'Origin Country', name: 'originCountry', type: 'text', required: true },
-    { label: 'Origin City', name: 'originCity', type: 'text', required: true },
-    { label: 'Destination Country', name: 'destinationCountry', type: 'text', required: true },
-    { label: 'Destination City', name: 'destinationCity', type: 'text', required: true },
-    { label: 'Weight', name: 'weight', type: 'number', required: true },
+    { label: 'Origin Country', name: 'origin.country', type: 'text', required: true },
+    { label: 'Origin City', name: 'origin.city', type: 'text', required: true },
+    { label: 'Origin Address Line', name: 'origin.addressLine', type: 'text' },
+    { label: 'Origin State', name: 'origin.state', type: 'text' },
+    { label: 'Origin Postal Code', name: 'origin.postalCode', type: 'text' },
+    { label: 'Origin Phone Number', name: 'origin.phoneNumber', type: 'text' },
+    { label: 'Origin Contact Name', name: 'origin.contactName', type: 'text' },
+    { label: 'Destination Country', name: 'destination.country', type: 'text', required: true },
+    { label: 'Destination City', name: 'destination.city', type: 'text', required: true },
+    { label: 'Destination Address Line', name: 'destination.addressLine', type: 'text' },
+    { label: 'Destination Postal Code', name: 'destination.postalCode', type: 'text' },
+    { label: 'Destination Phone Number', name: 'destination.phoneNumber', type: 'text' },
+    { label: 'Destination Contact Name', name: 'destination.contactName', type: 'text' },
+    { label: 'Goods Category', name: 'goodsCategory', type: 'select', required: true, options: [
+      { value: 'Has Battery', label: 'Has Battery' },
+      { value: 'Other', label: 'Other' }
+    ] },
+    { label: 'Weight (kg)', name: 'weightKg', type: 'number', required: true },
     { label: 'Volume (CBM)', name: 'volumeCbm', type: 'number', required: true },
-    { label: 'Shipping Option', name: 'shippingOption', type: 'text', required: true },
-    { label: 'Type', name: 'type', type: 'text', required: true },
+    { label: 'Shipping Option', name: 'shippingOption', type: 'select', required: true, options: [
+      { value: 'Express', label: 'Express' },
+      { value: 'Fast Track', label: 'Fast Track' },
+      { value: 'Console', label: 'Console' }
+    ] },
     { label: 'Total Cost', name: 'totalCost', type: 'number', required: true },
     { label: 'Currency', name: 'currency', type: 'text', required: true },
-    { label: 'Status', name: 'status', type: 'text', required: true },
+    { label: 'Status', name: 'status', type: 'select', required: true, options: [
+      { value: 'Pending', label: 'Pending' },
+      { value: 'Processing', label: 'Processing' },
+      { value: 'In Transit', label: 'In Transit' },
+      { value: 'Delivered', label: 'Delivered' },
+      { value: 'Cancelled', label: 'Cancelled' }
+    ] },
   ],
   adminSettings: [
     { label: 'Default Exchange Rate', name: 'defaultExchangeRate', type: 'number' },
@@ -66,15 +106,7 @@ const modelFields: Record<ModelType, { label: string; name: string; type: string
     { label: 'Country Code', name: 'code', type: 'text', required: true },
     // For export/import configs, you may want to use a separate form or JSON input
   ],
-  localRoute: [
-    { label: 'Origin City', name: 'originCity', type: 'text', required: true },
-    { label: 'Destination City', name: 'destinationCity', type: 'text', required: true },
-    { label: 'Country', name: 'country', type: 'text', required: true },
-    { label: 'Option', name: 'option', type: 'text', required: true },
-    { label: 'Active', name: 'active', type: 'checkbox' },
-    { label: 'SubCharge Percent', name: 'subChargePercent', type: 'number' },
-    { label: 'VAT Percent', name: 'vatPercent', type: 'number' },
-  ],
+  localRoute: [], // Deprecated
 };
 
 // Generic form for create/update
@@ -143,16 +175,31 @@ const ModelCreateUpdateForm = ({
         {modelFields[model].map((field) => (
           <div key={field.name}>
             <label className="block mb-1">{field.label}{field.required && ' *'}</label>
-            <input
-              className="w-full border rounded px-3 py-2"
-              type={field.type}
-              name={field.name}
-              value={field.type === 'checkbox' ? undefined : form[field.name] || ''}
-              checked={field.type === 'checkbox' ? !!form[field.name] : undefined}
-              required={field.required}
-              onChange={handleChange}
-              disabled={loading}
-            />
+            {field.type === 'select' ? (
+              <select
+                className="w-full border rounded px-3 py-2"
+                name={field.name}
+                value={form[field.name] || ''}
+                required={field.required}
+                onChange={handleChange}
+                disabled={loading}
+              >
+                {field.options?.map((option) => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
+              </select>
+            ) : (
+              <input
+                className="w-full border rounded px-3 py-2"
+                type={field.type}
+                name={field.name}
+                value={field.type === 'checkbox' ? undefined : form[field.name] || ''}
+                checked={field.type === 'checkbox' ? !!form[field.name] : undefined}
+                required={field.required}
+                onChange={handleChange}
+                disabled={loading}
+              />
+            )}
           </div>
         ))}
         <button
