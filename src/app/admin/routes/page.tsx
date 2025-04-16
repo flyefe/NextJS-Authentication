@@ -4,7 +4,10 @@ import axios from "axios"; // For making HTTP requests to your API
 import { toast } from "react-hot-toast"; // For showing notifications to the user
 import { useRouter } from "next/navigation"; // For navigation/redirection
 import { useEffect, useState } from 'react';
-import ModelCreateUpdateForm from '@/components/admin/ModelCreateUpdateForm'; // Import the generic form
+import AdminHeader from '@/components/admin/AdminHeader';
+import AdminSidebar from '@/components/admin/AdminSidebar';
+import DataTable from '@/components/admin/DataTable';
+import ModelCreateUpdateForm from '@/components/admin/ModelCreateUpdateForm';
 
 // TypeScript type for a route object
 type Route = {
@@ -92,92 +95,85 @@ export default function AdminRoutesPage() {
     if (error) return <div className="text-red-500">{error}</div>;
 
     return (
-        <div className="max-w-6xl mx-auto p-4 sm:p-8 bg-gray-50 min-h-screen">
-            <h1 className="text-3xl font-extrabold mb-8 text-blue-900 tracking-tight">Admin: Routes</h1>
-            {/* Add Route Button */}
-            <div className="mb-6">
-                <button
-                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 font-semibold shadow"
-                    onClick={openCreateModal}
-                >
-                    + Add Route
-                </button>
-            </div>
-            {/* Modal for create/update */}
-            {modalOpen && (
-                <div
-                    className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30"
-                    onClick={e => {
-                        if (e.target === e.currentTarget) setModalOpen(false);
-                    }}
-                >
-                    <div
-                        className="bg-white rounded-lg shadow-lg p-6 max-w-lg w-full relative max-h-[90vh] overflow-y-auto"
-                        style={{ boxSizing: 'border-box' }}
-                        onClick={e => e.stopPropagation()}
-                    >
+        <div className="flex bg-gray-50 min-h-screen">
+            {/* Sidebar */}
+            <AdminSidebar />
+            <div className="flex-1 flex flex-col">
+                {/* Header */}
+                <AdminHeader />
+                <div className="max-w-6xl mx-auto p-4 sm:p-8 w-full flex flex-col">
+                    <div className="flex items-center justify-between mb-8">
+                        <h1 className="text-3xl font-extrabold text-blue-900 tracking-tight">Admin: Routes</h1>
                         <button
-                            className="absolute top-2 right-2 text-gray-500 hover:text-red-500 text-xl"
-                            onClick={() => setModalOpen(false)}
-                            aria-label="Close"
+                            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 font-semibold shadow"
+                            onClick={openCreateModal}
                         >
-                            &times;
+                            + Add Route
                         </button>
-                        <ModelCreateUpdateForm
-                            model="route"
-                            mode={modalMode}
-                            id={modalMode === 'update' ? selectedRoute?._id : undefined}
-                            initialValues={modalMode === 'update' && selectedRoute ? selectedRoute : {}}
-                            onSuccess={handleRouteChanged}
-                        />
                     </div>
+                    {/* Modal for create/update */}
+                    {modalOpen && (
+                        <div
+                            className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30"
+                            onClick={e => {
+                                if (e.target === e.currentTarget) setModalOpen(false);
+                            }}
+                        >
+                            <div
+                                className="bg-white rounded-lg shadow-lg p-6 max-w-lg w-full relative max-h-[90vh] overflow-y-auto"
+                                style={{ boxSizing: 'border-box' }}
+                                onClick={e => e.stopPropagation()}
+                            >
+                                <button
+                                    className="absolute top-2 right-2 text-gray-500 hover:text-red-500 text-xl"
+                                    onClick={() => setModalOpen(false)}
+                                    aria-label="Close"
+                                >
+                                    &times;
+                                </button>
+                                <ModelCreateUpdateForm
+                                    model="route"
+                                    mode={modalMode}
+                                    id={modalMode === 'update' ? selectedRoute?._id : undefined}
+                                    initialValues={modalMode === 'update' && selectedRoute ? selectedRoute : {}}
+                                    onSuccess={handleRouteChanged}
+                                />
+                            </div>
+                        </div>
+                    )}
+                    {/* DataTable for existing routes */}
+                    <DataTable<Route>
+                        columns={[
+                            { key: 'routeName', label: 'Route Name' },
+                            { key: 'originCity', label: 'Origin', render: (val, row) => `${row.originCity}, ${row.originCountry}` },
+                            { key: 'destinationCity', label: 'Destination', render: (val, row) => `${row.destinationCity}, ${row.destinationCountry}` },
+                            { key: 'routeType', label: 'Type', render: val => <span className="capitalize">{val}</span> },
+                            { key: 'scope', label: 'Scope', render: val => <span className="capitalize">{val}</span> },
+                            { key: 'active', label: 'Active', render: val => (
+                                <span className={val ? "inline-block px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded" : "inline-block px-2 py-1 text-xs font-semibold bg-red-100 text-red-700 rounded"}>
+                                    {val ? 'Yes' : 'No'}
+                                </span>
+                            ) },
+                        ]}
+                        data={routes}
+                        actions={route => (
+                            <div className="flex gap-2">
+                                <button
+                                    className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
+                                    onClick={() => openUpdateModal(route)}
+                                >
+                                    Edit
+                                </button>
+                                <button
+                                    className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-sm"
+                                    onClick={() => handleDelete(route._id)}
+                                >
+                                    Delete
+                                </button>
+                            </div>
+                        )}
+                    />
                 </div>
-            )}
-            {/* Table of existing routes */}
-            <div className="overflow-x-auto">
-                <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-sm">
-                    <thead className="bg-blue-100 text-blue-900">
-                        <tr>
-                            <th className="px-4 py-3 text-left font-semibold text-gray-700">Route Name</th>
-                            <th className="px-4 py-3 text-left font-semibold text-gray-700">Origin</th>
-                            <th className="px-4 py-3 text-left font-semibold text-gray-700">Destination</th>
-                            <th className="px-4 py-3 text-left font-semibold text-gray-700">Type</th>
-                            <th className="px-4 py-3 text-left font-semibold text-gray-700">Scope</th>
-                            <th className="px-4 py-3 text-left font-semibold text-gray-700">Active</th>
-                            <th className="px-4 py-3 text-left font-semibold">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {routes.map((route, i) => (
-                            <tr key={route._id} className={i % 2 === 0 ? "bg-gray-50 hover:bg-blue-50" : "bg-white hover:bg-blue-50"}>
-                                <td className="px-4 py-3 whitespace-nowrap text-gray-700">{route.routeName}</td>
-                                <td className="px-4 py-3 whitespace-nowrap text-gray-700">{route.originCity}, {route.originCountry}</td>
-                                <td className="px-4 py-3 whitespace-nowrap text-gray-700">{route.destinationCity}, {route.destinationCountry}</td>
-                                <td className="px-4 py-3 whitespace-nowrap capitalize text-gray-700">{route.routeType}</td>
-                                <td className="px-4 py-3 whitespace-nowrap capitalize text-gray-700">{route.scope}</td>
-                                <td className="px-4 py-3 whitespace-nowrap">
-                                    <span className={route.active ? "inline-block px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded" : "inline-block px-2 py-1 text-xs font-semibold bg-red-100 text-red-700 rounded"}>
-                                        {route.active ? 'Yes' : 'No'}
-                                    </span>
-                                </td>
-                                <td className="px-4 py-3 whitespace-nowrap flex gap-2">
-                                    <button
-                                        className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
-                                        onClick={() => openUpdateModal(route)}
-                                    >
-                                        Edit
-                                    </button>
-                                    <button
-                                        className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-sm"
-                                        onClick={() => handleDelete(route._id)}
-                                    >
-                                        Delete
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
             </div>
         </div>
     );
