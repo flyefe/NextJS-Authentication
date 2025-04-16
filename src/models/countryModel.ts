@@ -4,8 +4,9 @@
 import mongoose from 'mongoose'
 
 const CountrySchema = new mongoose.Schema({
-  name: String,
-  code: String,
-})
+  name: { type: String, required: true },
+  code: { type: String }, // ISO code (optional)
+}, { timestamps: true });
 
-export default mongoose.models.Country || mongoose.model('Country', CountrySchema)
+const Country = mongoose.models.Country || mongoose.model("Country", CountrySchema);
+export default Country;

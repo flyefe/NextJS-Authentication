@@ -1,7 +1,9 @@
 import mongoose from "mongoose";
+import Country from "./countryModel";
+import Address from "./addressModel";
 
-//Rates
-const RateSchema = new mongoose.Schema({
+// Rates sub-schema
+const ExpressRateSchema = new mongoose.Schema({
   "0.5": Number,
   "1.0": Number,
   "1.5": Number,
@@ -12,47 +14,48 @@ const RateSchema = new mongoose.Schema({
   "4.0": Number,
   "4.5": Number,
   "5.0": Number
-}, { _id: false })
+  extraHalfKgRate: Number,
+}, { _id: false });
 
 const OptionRateSchema = new mongoose.Schema({
   "1-5kg": String,
   "6-10kg": String,
   "above10kg": String,
-}, { _id: false })
+}, { _id: false });
 
 const ShippingConfigSchema = new mongoose.Schema({
   availableOptions: [String],
   allowedGoods: [String],
-  kgRates: RateSchema,
-  extraHalfKgRate: Number,
-  exchangeRate: Number,
+  expressRate: ExpressRateSchema,
   fastTrackRate: OptionRateSchema,
   consoleRate: OptionRateSchema,
-  seaRate: Number,
-  "20ftRate": Number,
-  "40ftRate": Number,
-  customClearanceRate: Number,
-}, { _id: false })
-
-const RouteSchema = new mongoose.Schema({
-  // General route info
-  originCountry: { type: String, required: false, enum: [] as string[] },
-  destinationCountry: { type: String, required: false, enum: [] as string[] },
+  ratePerKg: Number
+  ratePerCBM: Number,
+  ratePer20ft: Number,
+  ratePer40ft: Number,
+  customClearanceRateSea: Number,
+  customClearanceRateAir: Number,
   
-  routeName: { type: String }, // Optional: for easy reference
-  scope: { type: String, enum: ["local", "international"], default: "international", required: false },
-  routeType: { type: String, enum: ["intra-city", "inter-city"], required: false },
-
- //General shipping config
-  export: { type: ShippingConfigSchema },
-  import: { type: ShippingConfigSchema },
+  exchangeRate: Number,
   subCharge: { type: Number, default: 0 },
   vatPercent: { type: Number, default: 0 },
+}, { _id: false });
+
+const RouteSchema = new mongoose.Schema({
+  routeName: { type: String },
+  scope: { type: String, enum: ["local", "international"], default: "international" },
+  routeType: { type: String, enum: ["intra-city", "inter-city"] },
+
+  export: { type: ShippingConfigSchema },
+  import: { type: ShippingConfigSchema },
+  
   active: { type: Boolean, default: true },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  updatedAt: { type: Date, default: Date.now },
 }, { timestamps: true });
 
 const Route = mongoose.models.Route || mongoose.model("Route", RouteSchema);
-
 export default Route;
+
+

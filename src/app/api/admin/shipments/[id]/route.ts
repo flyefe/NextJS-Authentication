@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connect } from "@/dbConfig/dbConfig";
-import Shipment from "@/models/shipmentModel";
+import Shipment from "@/models/shipmentOrderModel";
 import User from "@/models/userModel";
 import jwt from "jsonwebtoken";
 
