@@ -1,4 +1,3 @@
-
 'use client';
 
 import axios from "axios"; // For making HTTP requests to your API
@@ -15,80 +14,145 @@ type Country = {
     _id: string;
     name: string;
     code: string;
-    createdAt: string;
-    updatedAt: string;
-    routeName?: string;
-    description?: string;
-    routeType: string;
-    active: boolean;
-    createdAt: string;
-    updatedAt: string;
+    export: {
+        availableOptions: string[];
+        allowedGoods: string[];
+        kgRates: {
+            '0.5': number;
+            '1.0': number;
+            '1.5': number;
+            '2.0': number;
+            '2.5': number;
+            '3.0': number;
+            '3.5': number;
+            '4.0': number;
+            '4.5': number;
+            '5.0': number;
+        };
+        extraHalfKgRate: number;
+        exchangeRate: number;
+        fastTrackRate: {
+            '1-5kg': string;
+            '6-10kg': string;
+            'above10kg': string;
+        };
+        consoleRate: {
+            '1-5kg': string;
+            '6-10kg': string;
+            'above10kg': string;
+        };
+        seaRate: number;
+        '20ftRate': number;
+        '40ftRate': number;
+        customClearanceRate: number;
+    };
+    import: {
+        availableOptions: string[];
+        allowedGoods: string[];
+        kgRates: {
+            '0.5': number;
+            '1.0': number;
+            '1.5': number;
+            '2.0': number;
+            '2.5': number;
+            '3.0': number;
+            '3.5': number;
+            '4.0': number;
+            '4.5': number;
+            '5.0': number;
+        };
+        extraHalfKgRate: number;
+        exchangeRate: number;
+        fastTrackRate: {
+            '1-5kg': string;
+            '6-10kg': string;
+            'above10kg': string;
+        };
+        consoleRate: {
+            '1-5kg': string;
+            '6-10kg': string;
+            'above10kg': string;
+        };
+        seaRate: number;
+        '20ftRate': number;
+        '40ftRate': number;
+        customClearanceRate: number;
+    };
 };
 
 export default function AdminCountryPage() { 
-    const [routes, setRoutes] = useState<Route[]>([]); // State to store the list of routes
+    const [countries, setCountries] = useState<Country[]>([]); // State to store the list of countries
     const [loading, setLoading] = useState(true); // State to track loading status
     const [error, setError] = useState(''); // State to track errors
+    const [searchQuery, setSearchQuery] = useState(''); // State to track search query
+    const [modalOpen, setModalOpen] = useState(false);
+    const [selectedCountry, setSelectedCountry] = useState<Country | null>(null);
     const router = useRouter();
 
-    // Check authentication and fetch routes
+    // Check authentication and fetch countries
     useEffect(() => {
-        // Fetch routes from the backend API
-        axios.get('/api/admin/routes', { withCredentials: true }) // Sends cookies (JWT) for authentication
+        // Fetch countries from the backend API
+        axios.get('/api/admin/countries', { withCredentials: true }) // Sends cookies (JWT) for authentication
             .then(res => {
-                setRoutes(res.data.routes);
+                setCountries(res.data.countries);
             })
             .catch(err => {
-                setError('Unauthorized or error fetching routes');
-                // If not authorized, redirect to login (optional)
-                // router.push('/login');
+                setError('Unauthorized or error fetching countries');
+                // If not authorized, you might want to redirect to login
+                if (err.response?.status === 401) {
+                    // router.push('/login');
+                }
             })
             .finally(() => setLoading(false));
     }, []);
 
-    // Modal state for create/update
-    const [modalOpen, setModalOpen] = useState(false);
-    const [modalMode, setModalMode] = useState<'create' | 'update'>('create');
-    const [selectedRoute, setSelectedRoute] = useState<Route | null>(null);
+    // Filtered countries based on search query
+    const filteredCountries = countries.filter(country =>
+        country.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        country.code.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
-    // Callback to refresh the routes list after creating/updating/deleting a route
-    const handleRouteChanged = () => {
+    // Modal state for create/update
+    const [modalMode, setModalMode] = useState<'create' | 'update'>('create');
+
+    // Callback to refresh the countries list after creating/updating/deleting a country
+    const handleCountryChanged = () => {
         setLoading(true);
-        axios.get('/api/admin/routes', { withCredentials: true })
+        axios.get('/api/admin/countries', { withCredentials: true })
             .then(res => {
-                setRoutes(res.data.routes);
+                setCountries(res.data.countries);
             })
             .catch(err => {
-                setError('Unauthorized or error fetching routes');
+                setError('Unauthorized or error fetching countries');
             })
             .finally(() => setLoading(false));
         setModalOpen(false);
-        setSelectedRoute(null);
+        setSelectedCountry(null);
     };
 
-    // Open modal for creating a new route
+    // Open modal for creating a new country
     const openCreateModal = () => {
         setModalMode('create');
-        setSelectedRoute(null);
+        setSelectedCountry(null);
         setModalOpen(true);
     };
 
-    // Open modal for updating a route
-    const openUpdateModal = (route: Route) => {
+    // Open modal for updating a country
+    const openUpdateModal = (country: Country) => {
         setModalMode('update');
-        setSelectedRoute(route);
+        setSelectedCountry(country);
         setModalOpen(true);
     };
 
-    // Delete a route
+    // Delete a country
     const handleDelete = async (id: string) => {
-        if (!window.confirm('Are you sure you want to delete this route?')) return;
+        if (!window.confirm('Are you sure you want to delete this country?')) return;
         try {
-            await axios.delete(`/api/admin/routes/${id}`, { withCredentials: true });
-            toast.success('Route deleted');
-            handleRouteChanged();
+            await axios.delete(`/api/admin/countries/${id}`, { withCredentials: true });
+            toast.success('Country deleted');
+            handleCountryChanged();
         } catch (err: any) {
-            toast.error('Error deleting route');
+            toast.error('Error deleting country');
         }
     };
 
@@ -104,14 +168,22 @@ export default function AdminCountryPage() {
                 <AdminHeader />
                 <div className="max-w-6xl mx-auto p-4 sm:p-8 w-full flex flex-col">
                     <div className="flex items-center justify-between mb-8">
-                        <h1 className="text-3xl font-extrabold text-blue-900 tracking-tight">Admin: Routes</h1>
+                        <h1 className="text-3xl font-extrabold text-blue-900 tracking-tight">Admin: Countries</h1>
                         <button
                             className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 font-semibold shadow"
                             onClick={openCreateModal}
                         >
-                            + Add Route
+                            + Add Country
                         </button>
                     </div>
+                    {/* Search Input */}
+                    <input
+                        type="text"
+                        placeholder="Search countries..."
+                        value={searchQuery}
+                        onChange={e => setSearchQuery(e.target.value)}
+                        className="mb-4 p-2 border border-gray-300 rounded"
+                    />
                     {/* Modal for create/update */}
                     {modalOpen && (
                         <div
@@ -133,41 +205,35 @@ export default function AdminCountryPage() {
                                     &times;
                                 </button>
                                 <ModelCreateUpdateForm
-                                    model="route"
+                                    model="country"
                                     mode={modalMode}
-                                    id={modalMode === 'update' ? selectedRoute?._id : undefined}
-                                    initialValues={modalMode === 'update' && selectedRoute ? selectedRoute : {}}
-                                    onSuccess={handleRouteChanged}
+                                    id={modalMode === 'update' ? selectedCountry?._id : undefined}
+                                    initialValues={modalMode === 'update' && selectedCountry ? selectedCountry : {}}
+                                    onSuccess={handleCountryChanged}
                                 />
                             </div>
                         </div>
                     )}
-                    {/* DataTable for existing routes */}
-                    <DataTable<Route>
+                    {/* DataTable for existing countries */}
+                    <DataTable<Country>
                         columns={[
-                            { key: 'routeName', label: 'Route Name' },
-                            { key: 'originCity', label: 'Origin', render: (val, row) => `${row.originCity}, ${row.originCountry}` },
-                            { key: 'destinationCity', label: 'Destination', render: (val, row) => `${row.destinationCity}, ${row.destinationCountry}` },
-                            { key: 'routeType', label: 'Type', render: val => <span className="capitalize">{val}</span> },
-                            { key: 'scope', label: 'Scope', render: val => <span className="capitalize">{val}</span> },
-                            { key: 'active', label: 'Active', render: val => (
-                                <span className={val ? "inline-block px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded" : "inline-block px-2 py-1 text-xs font-semibold bg-red-100 text-red-700 rounded"}>
-                                    {val ? 'Yes' : 'No'}
-                                </span>
-                            ) },
+                            { key: 'name', label: 'Country Name' },
+                            { key: 'code', label: 'Country Code' },
+                            { key: 'export', label: 'Export Options', render: val => val.availableOptions.join(', ') },
+                            { key: 'import', label: 'Import Options', render: val => val.availableOptions.join(', ') },
                         ]}
-                        data={routes}
-                        actions={route => (
+                        data={filteredCountries}
+                        actions={country => (
                             <div className="flex gap-2">
                                 <button
                                     className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
-                                    onClick={() => openUpdateModal(route)}
+                                    onClick={() => openUpdateModal(country)}
                                 >
                                     Edit
                                 </button>
                                 <button
                                     className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-sm"
-                                    onClick={() => handleDelete(route._id)}
+                                    onClick={() => handleDelete(country._id)}
                                 >
                                     Delete
                                 </button>
