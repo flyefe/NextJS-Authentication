@@ -10,6 +10,8 @@ export const metadata: Metadata = {
   description: "NextJS app which demonstrates the authentication.",
 };
 
+import GlobalNavbar from '@/components/GlobalNavbar';
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -17,7 +19,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className={`${inter.className} bg-white min-h-screen`}> 
+        <GlobalNavbar />
+        {children}
+      </body>
     </html>
   );
 }
