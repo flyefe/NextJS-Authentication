@@ -11,30 +11,23 @@ type ModelType = 'route' | 'user' | 'shipment' | 'adminSettings' | 'auditLog' | 
 // Each field should match the backend model as closely as possible
 const modelFields: Record<ModelType, { label: string; name: string; type: string; required?: boolean; options?: { value: string; label: string }[] }[]> = {
   route: [
-    { label: 'Origin Country', name: 'originCountry', type: 'text', required: true },
-    { label: 'Origin City', name: 'originCity', type: 'text', required: true },
-    { label: 'Destination Country', name: 'destinationCountry', type: 'text', required: true },
-    { label: 'Destination City', name: 'destinationCity', type: 'text', required: true },
+    { label: 'Origin Country', name: 'originCountry', type: 'text', required: false },
+    { label: 'Origin City', name: 'originCity', type: 'text', required: false },
+    { label: 'Destination Country', name: 'destinationCountry', type: 'text', required: false },
+    { label: 'Destination City', name: 'destinationCity', type: 'text', required: false },
     { label: 'Route Name', name: 'routeName', type: 'text' },
     { label: 'Description', name: 'description', type: 'text' },
-    { label: 'Route Type', name: 'routeType', type: 'select', required: true, options: [
-      { value: 'intra-city', label: 'Intra-city' },
-      { value: 'inter-city', label: 'Inter-city' }
-    ] },
-    { label: 'Scope', name: 'scope', type: 'select', required: true, options: [
+    { label: 'Scope', name: 'scope', type: 'select', required: false, options: [
+      { value: '', label: 'Select' },
       { value: 'local', label: 'Local' },
       { value: 'international', label: 'International' }
     ] },
-    // Local route-specific fields (conditionally required)
-    { label: 'Option', name: 'option', type: 'select', options: [
-      { value: 'Intra-city Express', label: 'Intra-city Express' },
-      { value: 'Standard', label: 'Standard' },
-      { value: 'Bike Delivery', label: 'Bike Delivery' },
-      { value: 'Same Day', label: 'Same Day' },
-      { value: 'Next Day', label: 'Next Day' }
+    { label: 'Route Type', name: 'routeType', type: 'select', required: false, options: [
+      { value: '', label: 'Select' },
+      { value: 'intra-city', label: 'Intra-city' },
+      { value: 'inter-city', label: 'Inter-city' }
     ] },
-    { label: 'Kg Rates (JSON)', name: 'kgRates', type: 'text' },
-    { label: 'Extra Half Kg Rate', name: 'extraHalfKgRate', type: 'number' },
+    { label: 'Subcharge', name: 'subCharge', type: 'number' },
     { label: 'VAT Percent', name: 'vatPercent', type: 'number' },
     { label: 'Active', name: 'active', type: 'checkbox' },
   ],
@@ -150,10 +143,14 @@ const ModelCreateUpdateForm = ({
       let endpoint = `/api/admin/${model}s`;
       if (mode === 'update' && id) endpoint += `/${id}`;
       const method = mode === 'update' ? 'put' : 'post';
+      // Remove empty string values for select fields before submitting
+      const cleanedForm = { ...form };
+      if (cleanedForm.routeType === "") delete cleanedForm.routeType;
+      if (cleanedForm.scope === "") delete cleanedForm.scope;
       await axios({
         url: endpoint,
         method,
-        data: form,
+        data: cleanedForm,
         withCredentials: true,
       });
       toast.success(`${model.charAt(0).toUpperCase() + model.slice(1)} ${mode === 'update' ? 'updated' : 'created'}!`);
@@ -168,16 +165,16 @@ const ModelCreateUpdateForm = ({
 
   return (
     <div className="max-w-xl mx-auto bg-white p-8 rounded shadow">
-      <h2 className="text-xl font-bold mb-4">
+      <h2 className="text-xl font-bold mb-4 text-blue-900">
         {mode === 'update' ? 'Update' : 'Add New'} {model.charAt(0).toUpperCase() + model.slice(1)}
       </h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         {modelFields[model].map((field) => (
           <div key={field.name}>
-            <label className="block mb-1">{field.label}{field.required && ' *'}</label>
+            <label className="block mb-1 text-gray-700">{field.label}{field.required && ' *'}</label>
             {field.type === 'select' ? (
               <select
-                className="w-full border rounded px-3 py-2"
+                className="w-full border rounded px-3 py-2 text-gray-700"
                 name={field.name}
                 value={form[field.name] || ''}
                 required={field.required}
@@ -190,7 +187,7 @@ const ModelCreateUpdateForm = ({
               </select>
             ) : (
               <input
-                className="w-full border rounded px-3 py-2"
+                className="w-full border rounded px-3 py-2 text-gray-700"
                 type={field.type}
                 name={field.name}
                 value={field.type === 'checkbox' ? undefined : form[field.name] || ''}

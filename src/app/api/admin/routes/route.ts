@@ -1,18 +1,22 @@
+// This file handles API requests for routes
+
 import { NextRequest, NextResponse } from "next/server";
 import { connect } from "@/dbConfig/dbConfig";
 import Route from "@/models/routeModel";
 import User from "@/models/userModel";
 import jwt from "jsonwebtoken";
 
+// This function is used to connect to the database.  
 connect();
 
+// This function is used to get the admin user.
 async function getAdminUser(request: NextRequest) {
-  const token = request.cookies.get("token")?.value;
+  const token = request.cookies.get("token")?.value; // Get the token from the cookie
   if (!token) return null;
   try {
-    const decoded: any = jwt.verify(token, process.env.TOKEN_SECRET!);
-    const user = await User.findById(decoded.id);
-    if (user && user.isAdmin) return user;
+    const decoded: any = jwt.verify(token, process.env.TOKEN_SECRET!); // Verify the token
+    const user = await User.findById(decoded.id); //find user by id from database
+    if (user && user.isAdmin) return user; // Return the user if they are an admin
     return null;
   } catch {
     return null;

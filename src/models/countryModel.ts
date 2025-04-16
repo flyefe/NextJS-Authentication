@@ -27,8 +27,6 @@ const ShippingConfigSchema = new mongoose.Schema({
   allowedGoods: [String],
   kgRates: RateSchema,
   extraHalfKgRate: Number,
-  subChargePercent: Number,
-  vatPercent: Number,
   exchangeRate: Number,
   fastTrackRate: OptionRateSchema,
   consoleRate: OptionRateSchema,

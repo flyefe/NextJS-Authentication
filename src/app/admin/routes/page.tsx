@@ -21,7 +21,7 @@ type Route = {
     updatedAt: string;
 };
 
-export default function AdminRoutesPage() {
+export default function AdminRoutesPage() { 
     const [routes, setRoutes] = useState<Route[]>([]); // State to store the list of routes
     const [loading, setLoading] = useState(true); // State to track loading status
     const [error, setError] = useState(''); // State to track errors
@@ -59,10 +59,10 @@ export default function AdminRoutesPage() {
     if (error) return <div className="text-red-500">{error}</div>;
 
     return (
-        <div>
-            <h1 className="text-2xl font-bold mb-4">Admin: Routes</h1>
+        <div className="max-w-6xl mx-auto p-4 sm:p-8 bg-gray-50 min-h-screen">
+            <h1 className="text-3xl font-extrabold mb-8 text-blue-900 tracking-tight">Admin: Routes</h1>
             {/* Render the create route form */}
-            <div className="mb-8">
+            <div className="mb-10 bg-white rounded-lg shadow p-6 border border-gray-200">
                 <ModelCreateUpdateForm
                     model="route"
                     mode="create"
@@ -70,34 +70,42 @@ export default function AdminRoutesPage() {
                 />
             </div>
             {/* Table of existing routes */}
-            <table className="min-w-full border">
-                <thead>
-                    <tr>
-                        <th>Route Name</th>
-                        <th>Origin</th>
-                        <th>Destination</th>
-                        <th>Type</th>
-                        <th>Active</th>
-                        <th>Actions</th> {/* For future update/delete */}
-                    </tr>
-                </thead>
-                <tbody>
-                    {routes.map(route => (
-                        <tr key={route._id}>
-                            <td>{route.routeName}</td>
-                            <td>{route.originCity}, {route.originCountry}</td>
-                            <td>{route.destinationCity}, {route.destinationCountry}</td>
-                            <td>{route.routeType}</td>
-                            <td>{route.active ? 'Yes' : 'No'}</td>
-                            <td>
-                                {/* Future: Add update/delete buttons here */}
-                                {/* <button onClick={() => handleEdit(route._id)}>Edit</button>
-                                <button onClick={() => handleDelete(route._id)}>Delete</button> */}
-                            </td>
+            <div className="overflow-x-auto">
+                <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-sm">
+                    <thead className="bg-blue-100 text-blue-900">
+                        <tr>
+                            <th className="px-4 py-3 text-left font-semibold text-gray-700">Route Name</th>
+                            <th className="px-4 py-3 text-left font-semibold text-gray-700">Origin</th>
+                            <th className="px-4 py-3 text-left font-semibold text-gray-700">Destination</th>
+                            <th className="px-4 py-3 text-left font-semibold text-gray-700">Type</th>
+                            <th className="px-4 py-3 text-left font-semibold text-gray-700">Scope</th>
+                            <th className="px-4 py-3 text-left font-semibold text-gray-700">Active</th>
+                            <th className="px-4 py-3 text-left font-semibold">Actions</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {routes.map((route, i) => (
+                            <tr key={route._id} className={i % 2 === 0 ? "bg-gray-50 hover:bg-blue-50" : "bg-white hover:bg-blue-50"}>
+                                <td className="px-4 py-3 whitespace-nowrap text-gray-700">{route.routeName}</td>
+                                <td className="px-4 py-3 whitespace-nowrap text-gray-700">{route.originCity}, {route.originCountry}</td>
+                                <td className="px-4 py-3 whitespace-nowrap text-gray-700">{route.destinationCity}, {route.destinationCountry}</td>
+                                <td className="px-4 py-3 whitespace-nowrap capitalize text-gray-700">{route.routeType}</td>
+                                <td className="px-4 py-3 whitespace-nowrap capitalize text-gray-700">{route.scope}</td>
+                                <td className="px-4 py-3 whitespace-nowrap">
+                                    <span className={route.active ? "inline-block px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded" : "inline-block px-2 py-1 text-xs font-semibold bg-red-100 text-red-700 rounded"}>
+                                        {route.active ? 'Yes' : 'No'}
+                                    </span>
+                                </td>
+                                <td className="px-4 py-3 whitespace-nowrap">
+                                    {/* Future: Add update/delete buttons here */}
+                                    {/* <button className="mr-2 px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600" onClick={() => handleEdit(route._id)}>Edit</button>
+                                    <button className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600" onClick={() => handleDelete(route._id)}>Delete</button> */}
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 }
