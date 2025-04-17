@@ -21,6 +21,14 @@ const OptionRateSchema = new mongoose.Schema({
   "1-5kg": String,
   "6-10kg": String,
   "above10kg": String,
+  ratePerKg: Number,
+  ratePerPiece: Number,
+  ratePerCBM: Number,
+  ratePer20ft: Number,
+  ratePer40ft: Number,
+  customClearanceRateSea: Number,
+  customClearanceRateAir: Number,
+  exchangeRate: Number,
 }, { _id: false });
 
 const ShippingConfigSchema = new mongoose.Schema({
@@ -29,14 +37,6 @@ const ShippingConfigSchema = new mongoose.Schema({
   expressRate: ExpressRateSchema,
   fastTrackRate: OptionRateSchema,
   consoleRate: OptionRateSchema,
-  ratePerKg: Number
-  ratePerCBM: Number,
-  ratePer20ft: Number,
-  ratePer40ft: Number,
-  customClearanceRateSea: Number,
-  customClearanceRateAir: Number,
-  
-  exchangeRate: Number,
   subCharge: { type: Number, default: 0 },
   vatPercent: { type: Number, default: 0 },
 }, { _id: false });

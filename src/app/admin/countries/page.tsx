@@ -11,73 +11,11 @@ import ModelCreateUpdateForm from '@/components/admin/ModelCreateUpdateForm';
 
 // TypeScript type for a country object
 type Country = {
-    _id: string;
-    name: string;
-    code: string;
-    export: {
-        availableOptions: string[];
-        allowedGoods: string[];
-        kgRates: {
-            '0.5': number;
-            '1.0': number;
-            '1.5': number;
-            '2.0': number;
-            '2.5': number;
-            '3.0': number;
-            '3.5': number;
-            '4.0': number;
-            '4.5': number;
-            '5.0': number;
-        };
-        extraHalfKgRate: number;
-        exchangeRate: number;
-        fastTrackRate: {
-            '1-5kg': string;
-            '6-10kg': string;
-            'above10kg': string;
-        };
-        consoleRate: {
-            '1-5kg': string;
-            '6-10kg': string;
-            'above10kg': string;
-        };
-        seaRate: number;
-        '20ftRate': number;
-        '40ftRate': number;
-        customClearanceRate: number;
-    };
-    import: {
-        availableOptions: string[];
-        allowedGoods: string[];
-        kgRates: {
-            '0.5': number;
-            '1.0': number;
-            '1.5': number;
-            '2.0': number;
-            '2.5': number;
-            '3.0': number;
-            '3.5': number;
-            '4.0': number;
-            '4.5': number;
-            '5.0': number;
-        };
-        extraHalfKgRate: number;
-        exchangeRate: number;
-        fastTrackRate: {
-            '1-5kg': string;
-            '6-10kg': string;
-            'above10kg': string;
-        };
-        consoleRate: {
-            '1-5kg': string;
-            '6-10kg': string;
-            'above10kg': string;
-        };
-        seaRate: number;
-        '20ftRate': number;
-        '40ftRate': number;
-        customClearanceRate: number;
-    };
+  _id: string;
+  name: string;
+  code?: string;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export default function AdminCountryPage() { 
@@ -109,7 +47,7 @@ export default function AdminCountryPage() {
     // Filtered countries based on search query
     const filteredCountries = countries.filter(country =>
         country.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        country.code.toLowerCase().includes(searchQuery.toLowerCase())
+        (country.code ? country.code.toLowerCase().includes(searchQuery.toLowerCase()) : false)
     );
 
     // Modal state for create/update
@@ -219,8 +157,8 @@ export default function AdminCountryPage() {
                         columns={[
                             { key: 'name', label: 'Country Name' },
                             { key: 'code', label: 'Country Code' },
-                            { key: 'export', label: 'Export Options', render: val => val.availableOptions.join(', ') },
-                            { key: 'import', label: 'Import Options', render: val => val.availableOptions.join(', ') },
+                            { key: 'createdAt', label: 'Created At', render: val => new Date(val).toLocaleString() },
+                            { key: 'updatedAt', label: 'Updated At', render: val => new Date(val).toLocaleString() },
                         ]}
                         data={filteredCountries}
                         actions={country => (

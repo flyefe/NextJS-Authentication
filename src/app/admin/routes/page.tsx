@@ -8,6 +8,9 @@ import AdminHeader from '@/components/admin/AdminHeader';
 import AdminSidebar from '@/components/admin/AdminSidebar';
 import DataTable from '@/components/admin/DataTable';
 import ModelCreateUpdateForm from '@/components/admin/ModelCreateUpdateForm';
+import ExpressRateSection from '../../../components/admin/ExpressRateSection';
+import OptionRateSection from '../../../components/admin/OptionRateSection';
+import ShippingConfigSection from '../../../components/admin/ShippingConfigSection';
 
 // TypeScript type for a route object
 type Route = {
@@ -19,6 +22,7 @@ type Route = {
     routeName?: string;
     description?: string;
     routeType: string;
+    scope: string;
     active: boolean;
     createdAt: string;
     updatedAt: string;
@@ -28,6 +32,7 @@ export default function AdminRoutesPage() {
     const [routes, setRoutes] = useState<Route[]>([]); // State to store the list of routes
     const [loading, setLoading] = useState(true); // State to track loading status
     const [error, setError] = useState(''); // State to track errors
+    const [dropdownOptions, setDropdownOptions] = useState<string[]>([]); // State for dropdown options
     const router = useRouter();
 
     // Check authentication and fetch routes
@@ -36,6 +41,9 @@ export default function AdminRoutesPage() {
         axios.get('/api/admin/routes', { withCredentials: true }) // Sends cookies (JWT) for authentication
             .then(res => {
                 setRoutes(res.data.routes);
+                // Extract unique route types for dropdown
+                const uniqueRouteTypes = Array.from(new Set<string>(res.data.routes.map((route: Route) => route.routeType)));
+                setDropdownOptions(uniqueRouteTypes);
             })
             .catch(err => {
                 setError('Unauthorized or error fetching routes');
@@ -91,6 +99,37 @@ export default function AdminRoutesPage() {
         }
     };
 
+    const [form, setForm] = useState({
+        expressRate: {},
+        optionRate: {},
+        shippingConfig: {},
+    });
+
+    useEffect(() => {
+        // Fetch route data from the API
+        axios.get('/api/routes')
+            .then(response => {
+                setForm(response.data);
+                setLoading(false);
+            })
+            .catch(err => {
+                setError(err);
+                setLoading(false);
+            });
+    }, []);
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        // Update route data via API
+        axios.put('/api/routes', form)
+            .then(response => {
+                console.log('Route updated:', response);
+            })
+            .catch(err => {
+                console.error('Error updating route:', err);
+            });
+    };
+
     if (loading) return <div>Loading...</div>;
     if (error) return <div className="text-red-500">{error}</div>;
 
@@ -111,6 +150,13 @@ export default function AdminRoutesPage() {
                             + Add Route
                         </button>
                     </div>
+                    {/* Dropdown for route types */}
+                    <select className="mb-4 p-2 border border-gray-300 rounded">
+                        <option value="">Select Route Type</option>
+                        {dropdownOptions.map(option => (
+                            <option key={option} value={option}>{option}</option>
+                        ))}
+                    </select>
                     {/* Modal for create/update */}
                     {modalOpen && (
                         <div
@@ -173,6 +219,20 @@ export default function AdminRoutesPage() {
                             </div>
                         )}
                     />
+                    <div className="max-w-3xl mx-auto bg-white p-6 rounded shadow mt-8">
+                        <h2 className="text-xl font-bold mb-4">Manage Route</h2>
+                        <form onSubmit={handleSubmit} className="space-y-6">
+                            <ExpressRateSection form={form} setForm={setForm} />
+                            <OptionRateSection form={form} setForm={setForm} />
+                            <ShippingConfigSection form={form} setForm={setForm} />
+                            <button
+                                type="submit"
+                                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                            >
+                                Save Changes
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
