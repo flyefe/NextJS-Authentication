@@ -15,6 +15,8 @@ const ExpressRateSchema = new mongoose.Schema({
   "4.5": Number,
   "5.0": Number,
   extraHalfKgRate: Number,
+  subCharge: { type: Number, default: 0 },
+  vatPercent: { type: Number, default: 0 },
   goodsCategory: [String],
   active: { type: Boolean, default: true },
 }, { _id: false });
@@ -52,8 +54,6 @@ const ShippingOptionConfigSchema = new mongoose.Schema({
     consoleRate: airRateSchema,
     seaRate: SeaRateSchema,
   },
-  subCharge: { type: Number, default: 0 },
-  vatPercent: { type: Number, default: 0 },
 }, { _id: false });
 
 // Route Main Schema

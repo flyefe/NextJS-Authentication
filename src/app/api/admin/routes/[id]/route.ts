@@ -54,9 +54,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   delete body.export;
 
   // Ensure nested objects are present
-  body.expressRate = body.expressRate || {};
-  body.optionRate = body.optionRate || {};
-  body.shippingConfig = body.shippingConfig || {};
+  body.shippingOptionConfig = body.shippingOptionConfig || {};
   body.category = body.category || {};
 
   // Set audit fields

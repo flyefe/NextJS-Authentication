@@ -55,11 +55,19 @@ export async function POST(request: NextRequest) {
   body.destinationCountry = new mongoose.Types.ObjectId(body.destinationCountry);
   if (body.createdBy) body.createdBy = new mongoose.Types.ObjectId(body.createdBy);
   if (body.updatedBy) body.updatedBy = new mongoose.Types.ObjectId(body.updatedBy);
-
-  // Ensure nested objects are present
-  body.expressRate = body.expressRate || {};
-  body.optionRate = body.optionRate || {};
-  body.shippingConfig = body.shippingConfig || {};
+  
+  // The frontend should send a shippingOptionConfig object with this structure:
+  // shippingOptionConfig: {
+  //   availableOptions: {
+  //     expressRate: { ... },
+  //     fastTrackRate: { ... },
+  //     consoleRate: { ... },
+  //     seaRate: { ... }
+  //   },
+  //   subCharge: number,
+  //   vatPercent: number
+  // }
+  // No legacy expressRate/optionRate/shippingConfig fields are needed.
 
   // Set audit fields
   body.createdBy = adminUser._id;

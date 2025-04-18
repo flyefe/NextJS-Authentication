@@ -29,7 +29,7 @@ interface FormState {
   shippingConfig: {
     [key: string]: any;
     availableOptions?: string[];
-    allowedGoods?: string[];
+    goodsCategory?: string[];
     subCharge?: number;
     vatPercent?: number;
   };
