@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
-import Country from "./countryModel";
-import Address from "./addressModel";
 
-// Rates sub-schema
+// Rates sub-schemas
+
+// Express Rate sub-schema
 const ExpressRateSchema = new mongoose.Schema({
   "0.5": Number,
   "1.0": Number,
@@ -19,6 +19,7 @@ const ExpressRateSchema = new mongoose.Schema({
   active: { type: Boolean, default: true },
 }, { _id: false });
 
+// Air Rate sub-schema
 const airRateSchema = new mongoose.Schema({
   "1-5kg": String,
   "6-10kg": String,
@@ -31,6 +32,7 @@ const airRateSchema = new mongoose.Schema({
   active: { type: Boolean, default: true },
 }, { _id: false });
 
+// Sea Rate sub-schema
 const SeaRateSchema = new mongoose.Schema({
   ratePerCBM: Number,
   ratePer20ft: Number,
@@ -42,6 +44,7 @@ const SeaRateSchema = new mongoose.Schema({
   active: { type: Boolean, default: true },
 }, { _id: false });
 
+// Shipping Option Config sub-schema
 const ShippingOptionConfigSchema = new mongoose.Schema({
   availableOptions: {
     expressRate: ExpressRateSchema,
@@ -53,6 +56,7 @@ const ShippingOptionConfigSchema = new mongoose.Schema({
   vatPercent: { type: Number, default: 0 },
 }, { _id: false });
 
+// Route Main Schema
 const RouteSchema = new mongoose.Schema({
   routeName: { type: String },
   scope: { type: String, enum: ["local", "international"], default: "international" },

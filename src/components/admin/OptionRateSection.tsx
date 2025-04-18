@@ -12,7 +12,7 @@ const OptionRateSection: React.FC<OptionRateSectionProps> = ({ form, setForm, ra
     if (name === 'goodsCategory') {
       setForm((prev) => ({ ...prev, goodsCategory: value.split(',').map((s) => s.trim()).filter(Boolean) }));
     } else if (type === 'checkbox') {
-      setForm((prev) => ({ ...prev, [name]: checked }));
+      setForm((prev) => ({ ...prev, [name]: Boolean(checked) }));
     } else {
       setForm((prev) => ({ ...prev, [name]: value === '' ? '' : isNaN(Number(value)) ? value : Number(value) }));
     }
@@ -79,11 +79,11 @@ const OptionRateSection: React.FC<OptionRateSectionProps> = ({ form, setForm, ra
             <input
               type="checkbox"
               name="active"
-              checked={!!form.active}
+              checked={form.active}
               onChange={handleChange}
               className="mr-2"
             />
-            <label className="text-gray-700">Active</label>
+            <label className="text-gray-700">Is Active</label>
           </div>
         </div>
       </div>
@@ -149,11 +149,11 @@ const OptionRateSection: React.FC<OptionRateSectionProps> = ({ form, setForm, ra
             <input
               type="checkbox"
               name="active"
-              checked={!!form.active}
+              checked={form.active} 
               onChange={handleChange}
               className="mr-2"
             />
-            <label className="text-gray-700">Active</label>
+            <label className="text-gray-700">Is Active</label>
           </div>
         </div>
       </div>

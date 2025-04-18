@@ -7,11 +7,13 @@ interface ExpressRateSectionProps {
 
 const ExpressRateSection: React.FC<ExpressRateSectionProps> = ({ form, setForm }) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     if (name === 'goodsCategory') {
       setForm((prev) => ({ ...prev, goodsCategory: value.split(',').map(s => s.trim()).filter(Boolean) }));
+    } else if (type === 'checkbox') {
+      setForm((prev) => ({ ...prev, [name]: checked }));
     } else {
-      setForm((prev) => ({ ...prev, [name]: parseFloat(value) || 0 }));
+      setForm((prev) => ({ ...prev, [name]: value === '' ? '' : isNaN(Number(value)) ? value : Number(value) }));
     }
   };
 
@@ -50,6 +52,16 @@ const ExpressRateSection: React.FC<ExpressRateSectionProps> = ({ form, setForm }
             onChange={handleChange}
             className="w-full border rounded px-3 py-2"
           />
+        </div>
+        <div className="flex items-center mt-2">
+          <input
+            type="checkbox"
+            name="active"
+            checked={form.active}
+            onChange={handleChange}
+            className="mr-2"
+          />
+          <label className="text-gray-700">Is Active</label>
         </div>
       </div>
     </div>
