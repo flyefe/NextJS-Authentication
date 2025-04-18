@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import AdminHeader from '@/components/admin/AdminHeader';
 import AdminSidebar from '@/components/admin/AdminSidebar';
 import DataTable from '@/components/admin/DataTable';
-import ModelCreateUpdateForm from '@/components/admin/ModelCreateUpdateForm';
+import RouteCreateForm from '../../../components/admin/RouteCreateForm';
 import ExpressRateSection from '../../../components/admin/ExpressRateSection';
 import OptionRateSection from '../../../components/admin/OptionRateSection';
 import ShippingConfigSection from '../../../components/admin/ShippingConfigSection';
@@ -33,22 +33,27 @@ export default function AdminRoutesPage() {
     const [loading, setLoading] = useState(true); // State to track loading status
     const [error, setError] = useState(''); // State to track errors
     const [dropdownOptions, setDropdownOptions] = useState<string[]>([]); // State for dropdown options
+    const [countries, setCountries] = useState<any[]>([]);
+    const [users, setUsers] = useState<any[]>([]);
     const router = useRouter();
 
-    // Check authentication and fetch routes
+    // Fetch routes, countries, and users
     useEffect(() => {
-        // Fetch routes from the backend API
-        axios.get('/api/admin/routes', { withCredentials: true }) // Sends cookies (JWT) for authentication
-            .then(res => {
-                setRoutes(res.data.routes);
-                // Extract unique route types for dropdown
-                const uniqueRouteTypes = Array.from(new Set<string>(res.data.routes.map((route: Route) => route.routeType)));
+        setLoading(true);
+        Promise.all([
+            axios.get('/api/admin/routes', { withCredentials: true }),
+            axios.get('/api/admin/countries', { withCredentials: true }),
+            axios.get('/api/admin/users', { withCredentials: true }),
+        ])
+            .then(([routesRes, countriesRes, usersRes]) => {
+                setRoutes(routesRes.data.routes);
+                setCountries(countriesRes.data.countries || []);
+                setUsers(usersRes.data.users || []);
+                const uniqueRouteTypes = Array.from(new Set<string>(routesRes.data.routes.map((route: Route) => route.routeType)));
                 setDropdownOptions(uniqueRouteTypes);
             })
             .catch(err => {
-                setError('Unauthorized or error fetching routes');
-                // If not authorized, redirect to login (optional)
-                // router.push('/login');
+                setError(err?.response?.data?.error || err?.message || 'Unauthorized or error fetching data');
             })
             .finally(() => setLoading(false));
     }, []);
@@ -66,7 +71,7 @@ export default function AdminRoutesPage() {
                 setRoutes(res.data.routes);
             })
             .catch(err => {
-                setError('Unauthorized or error fetching routes');
+                setError(err?.response?.data?.error || err?.message || 'Unauthorized or error fetching routes');
             })
             .finally(() => setLoading(false));
         setModalOpen(false);
@@ -80,12 +85,7 @@ export default function AdminRoutesPage() {
         setModalOpen(true);
     };
 
-    // Open modal for updating a route
-    const openUpdateModal = (route: Route) => {
-        setModalMode('update');
-        setSelectedRoute(route);
-        setModalOpen(true);
-    };
+
 
     // Delete a route
     const handleDelete = async (id: string) => {
@@ -99,39 +99,58 @@ export default function AdminRoutesPage() {
         }
     };
 
-    const [form, setForm] = useState({
-        expressRate: {},
-        optionRate: {},
-        shippingConfig: {},
-    });
+    // Remove global form state for single route; use per-modal state instead.
+    // Fetching and updating a single route is handled in modal logic below.
 
-    useEffect(() => {
-        // Fetch route data from the API
-        axios.get('/api/routes')
-            .then(response => {
-                setForm(response.data);
-                setLoading(false);
-            })
-            .catch(err => {
-                setError(err);
-                setLoading(false);
-            });
-    }, []);
-
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        // Update route data via API
-        axios.put('/api/routes', form)
-            .then(response => {
-                console.log('Route updated:', response);
-            })
-            .catch(err => {
-                console.error('Error updating route:', err);
-            });
+    // Function to open modal for editing a route
+    const openUpdateModal = (route: Route) => {
+        setModalMode('update');
+        setSelectedRoute(route);
+        setModalOpen(true);
     };
 
+    // Function to fetch a single route by ID (for editing, if needed)
+    const fetchRouteById = async (id: string) => {
+        setLoading(true);
+        try {
+            const res = await axios.get(`/api/admin/routes/${id}`, { withCredentials: true });
+            setSelectedRoute(res.data.route);
+        } catch (err: any) {
+            setError(err?.response?.data?.error || err?.message || 'Failed to fetch route');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Function to update a route
+    const updateRoute = async (id: string, form: any) => {
+        setLoading(true);
+        try {
+            const res = await axios.put(`/api/admin/routes/${id}`, form, { withCredentials: true });
+            toast.success('Route updated');
+            handleRouteChanged();
+        } catch (err: any) {
+            setError(err?.response?.data?.error || err?.message || 'Failed to update route');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Pass updateRoute to RouteCreateForm onSubmit in update mode:
+    // <RouteCreateForm
+    //   ...
+    //   initialValues={modalMode === 'update' && selectedRoute ? selectedRoute : undefined}
+    //   onSubmit={async (form) => {
+    //     if (modalMode === 'update' && selectedRoute) {
+    //       await updateRoute(selectedRoute._id, form);
+    //     } else {
+    //       ... // create logic
+    //     }
+    //   }}
+    // />
+
+
     if (loading) return <div>Loading...</div>;
-    if (error) return <div className="text-red-500">{error}</div>;
 
     return (
         <div className="flex bg-gray-50 min-h-screen">
@@ -141,6 +160,11 @@ export default function AdminRoutesPage() {
                 {/* Header */}
                 <AdminHeader />
                 <div className="max-w-6xl mx-auto p-4 sm:p-8 w-full flex flex-col">
+                    {error && (
+                        <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+                            {typeof error === 'string' ? error : (error?.message || 'An error occurred')}
+                        </div>
+                    )}
                     <div className="flex items-center justify-between mb-8">
                         <h1 className="text-3xl font-extrabold text-blue-900 tracking-tight">Admin: Routes</h1>
                         <button
@@ -177,12 +201,24 @@ export default function AdminRoutesPage() {
                                 >
                                     &times;
                                 </button>
-                                <ModelCreateUpdateForm
-                                    model="route"
-                                    mode={modalMode}
-                                    id={modalMode === 'update' ? selectedRoute?._id : undefined}
-                                    initialValues={modalMode === 'update' && selectedRoute ? selectedRoute : {}}
-                                    onSuccess={handleRouteChanged}
+                                <RouteCreateForm
+                                    countries={countries}
+                                    users={users}
+                                    initialValues={modalMode === 'update' && selectedRoute ? selectedRoute : undefined}
+                                    onSubmit={async (form) => {
+                                        try {
+                                            if (modalMode === 'update' && selectedRoute) {
+                                                await updateRoute(selectedRoute._id, form);
+                                            } else {
+                                                await axios.post('/api/admin/routes', form, { withCredentials: true });
+                                                toast.success('Route created');
+                                                handleRouteChanged();
+                                            }
+                                            setModalOpen(false);
+                                        } catch (err: any) {
+                                            toast.error(err?.response?.data?.error || err?.message || 'Error saving route');
+                                        }
+                                    }}
                                 />
                             </div>
                         </div>
@@ -190,7 +226,15 @@ export default function AdminRoutesPage() {
                     {/* DataTable for existing routes */}
                     <DataTable<Route>
                         columns={[
-                            { key: 'routeName', label: 'Route Name' },
+                            { key: 'routeName', label: 'Route Name', render: (val, row) => (
+  <a
+    href="/admin/routes/create"
+    className="text-blue-600 hover:underline"
+    title="Create new route"
+  >
+    {val}
+  </a>
+)},
                             { key: 'originCity', label: 'Origin', render: (val, row) => `${row.originCity}, ${row.originCountry}` },
                             { key: 'destinationCity', label: 'Destination', render: (val, row) => `${row.destinationCity}, ${row.destinationCountry}` },
                             { key: 'routeType', label: 'Type', render: val => <span className="capitalize">{val}</span> },
@@ -219,20 +263,7 @@ export default function AdminRoutesPage() {
                             </div>
                         )}
                     />
-                    <div className="max-w-3xl mx-auto bg-white p-6 rounded shadow mt-8">
-                        <h2 className="text-xl font-bold mb-4">Manage Route</h2>
-                        <form onSubmit={handleSubmit} className="space-y-6">
-                            <ExpressRateSection form={form} setForm={setForm} />
-                            <OptionRateSection form={form} setForm={setForm} />
-                            <ShippingConfigSection form={form} setForm={setForm} />
-                            <button
-                                type="submit"
-                                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-                            >
-                                Save Changes
-                            </button>
-                        </form>
-                    </div>
+
                 </div>
             </div>
         </div>

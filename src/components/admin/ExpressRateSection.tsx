@@ -1,9 +1,18 @@
 import React from 'react';
 
-const ExpressRateSection = ({ form, setForm }) => {
-  const handleChange = (e) => {
+interface ExpressRateSectionProps {
+  form: Record<string, any>;
+  setForm: (updater: (prev: Record<string, any>) => Record<string, any>) => void;
+}
+
+const ExpressRateSection: React.FC<ExpressRateSectionProps> = ({ form, setForm }) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: parseFloat(value) || 0 }));
+    if (name === 'goodsCategory') {
+      setForm((prev) => ({ ...prev, goodsCategory: value.split(',').map(s => s.trim()).filter(Boolean) }));
+    } else {
+      setForm((prev) => ({ ...prev, [name]: parseFloat(value) || 0 }));
+    }
   };
 
   return (
@@ -32,9 +41,19 @@ const ExpressRateSection = ({ form, setForm }) => {
             className="w-full border rounded px-3 py-2"
           />
         </div>
+        <div>
+          <label className="block text-gray-700">Goods Category (comma separated)</label>
+          <input
+            type="text"
+            name="goodsCategory"
+            value={Array.isArray(form.goodsCategory) ? form.goodsCategory.join(', ') : ''}
+            onChange={handleChange}
+            className="w-full border rounded px-3 py-2"
+          />
+        </div>
       </div>
     </div>
   );
 };
 
-export default ExpressRateSection; 
+export default ExpressRateSection;

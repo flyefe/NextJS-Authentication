@@ -1,5 +1,6 @@
 // This file handles API requests for routes
 
+import mongoose from "mongoose";
 import { NextRequest, NextResponse } from "next/server";
 import { connect } from "@/dbConfig/dbConfig";
 import Route from "@/models/routeModel";
@@ -26,7 +27,16 @@ async function getAdminUser(request: NextRequest) {
 export async function GET(request: NextRequest) {
   const adminUser = await getAdminUser(request);
   if (!adminUser) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  const routes = await Route.find();
+
+  // Support for filtering (optional, e.g. by country, active)
+  const { searchParams } = new URL(request.url);
+  const filter: any = {};
+  if (searchParams.get('originCountry')) filter.originCountry = searchParams.get('originCountry');
+  if (searchParams.get('destinationCountry')) filter.destinationCountry = searchParams.get('destinationCountry');
+  if (searchParams.get('active')) filter.active = searchParams.get('active') === 'true';
+
+  const routes = await Route.find(filter)
+    .populate('originCountry destinationCountry createdBy updatedBy');
   return NextResponse.json({ routes });
 }
 
@@ -34,7 +44,34 @@ export async function POST(request: NextRequest) {
   const adminUser = await getAdminUser(request);
   if (!adminUser) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const body = await request.json();
-  const route = new Route({ ...body, createdBy: adminUser._id, updatedBy: adminUser._id });
-  await route.save();
-  return NextResponse.json({ route });
+
+  // Validate required fields
+  if (!body.originCountry || !body.destinationCountry || !body.routeType || !body.originCity || !body.destinationCity) {
+    return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+  }
+
+  // Convert string IDs to ObjectId
+  body.originCountry = new mongoose.Types.ObjectId(body.originCountry);
+  body.destinationCountry = new mongoose.Types.ObjectId(body.destinationCountry);
+  if (body.createdBy) body.createdBy = new mongoose.Types.ObjectId(body.createdBy);
+  if (body.updatedBy) body.updatedBy = new mongoose.Types.ObjectId(body.updatedBy);
+
+  // Ensure nested objects are present
+  body.expressRate = body.expressRate || {};
+  body.optionRate = body.optionRate || {};
+  body.shippingConfig = body.shippingConfig || {};
+
+  // Set audit fields
+  body.createdBy = adminUser._id;
+  body.updatedBy = adminUser._id;
+
+  try {
+    const route = new Route(body);
+    await route.save();
+    // Populate references for response
+    // await route.populate('originCountry destinationCountry createdBy updatedBy');
+    return NextResponse.json({ route });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
 }
