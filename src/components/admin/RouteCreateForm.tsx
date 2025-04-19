@@ -55,8 +55,12 @@ const BasicRouteInfoSection = ({ form, setForm, countries, users }: {
   users: User[];
 }) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value, type, checked } = e.target;
-    setForm((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
+    const { name, value, type } = e.target;
+    if (type === 'checkbox' && 'checked' in e.target) {
+      setForm((prev) => ({ ...prev, [name]: (e.target as HTMLInputElement).checked }));
+    } else {
+      setForm((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   return (
@@ -87,14 +91,18 @@ const BasicRouteInfoSection = ({ form, setForm, countries, users }: {
               return (
                 <RateComponent
                   key={opt.key}
-                  form={form.shippingConfig?.[opt.key] || {}}
-                  setForm={rateVals => setForm(f => ({
+                  form={form.shippingConfig?.availableOptions?.[opt.key] || {}}
+                  setForm={(rateVals) => setForm((f) => ({
                     ...f,
                     shippingConfig: {
                       ...f.shippingConfig,
-                      [opt.key]: rateVals
-                    }
+                      availableOptions: {
+                        ...f.shippingConfig?.availableOptions,
+                        [opt.key]: rateVals,
+                      },
+                    },
                   }))}
+                  rateType={opt.key as 'seaRate' | 'fastTrackRate' | 'consoleRate' | 'expressRate'}
                 />
               );
             })}

@@ -10,7 +10,7 @@ import DataTable from '@/components/admin/DataTable';
 import RouteCreateForm from '../../../components/admin/RouteCreateForm';
 import ExpressRateSection from '../../../components/admin/ExpressRateSection';
 import OptionRateSection from '../../../components/admin/OptionRateSection';
-import ShippingConfigSection from '../../../components/admin/ShippingConfigSection';
+import ShippingConfigSection from '../../../components/admin/ShippingConfigSection';    
 
 // TypeScript type for a route object
 type Route = {

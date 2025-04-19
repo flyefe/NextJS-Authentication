@@ -47,6 +47,12 @@ export async function POST(request: NextRequest) {
   if (!adminUser) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const body = await request.json();
 
+  // Log the full payload and expressRate for debugging
+  console.log('API received payload:', body);
+  if (body.shippingOptionConfig?.availableOptions?.expressRate) {
+    console.log('API received expressRate:', body.shippingOptionConfig.availableOptions.expressRate);
+  }
+
   // Only require routeName for all routes
   if (!body.routeName) {
     return NextResponse.json({ error: 'Route name is required' }, { status: 400 });

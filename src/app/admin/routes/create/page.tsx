@@ -39,16 +39,16 @@ export default function CreateRoutePage() {
     shippingOptionConfig: {
       availableOptions: {
         expressRate: {
-          "0_5": 0,
-          "1_0": 0,
-          "1_5": 0,
-          "2_0": 0,
-          "2_5": 0,
-          "3_0": 0,
-          "3_5": 0,
-          "4_0": 0,
-          "4_5": 0,
-          "5_0": 0,
+          "0_5kg": 0,
+          "1_0kg": 0,
+          "1_5kg": 0,
+          "2_0kg": 0,
+          "2_5kg": 0,
+          "3_0kg": 0,
+          "3_5kg": 0,
+          "4_0kg": 0,
+          "4_5kg": 0,
+          "5_0kg": 0,
           extraHalfKgRate: 0,
           subCharge: 0,
           vatPercent: 0,
@@ -194,7 +194,8 @@ export default function CreateRoutePage() {
         active
       };
 
-      // Log expressRate payload for debugging
+      // Log payload for debugging
+      console.log('Payload being sent to backend:', payload);
       console.log('Express Rate Payload:', payload.shippingOptionConfig.availableOptions.expressRate);
       // POST for create (editingId logic removed)
       await axios.post("/api/admin/routes", payload, { withCredentials: true });

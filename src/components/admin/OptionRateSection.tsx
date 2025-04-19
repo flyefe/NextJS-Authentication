@@ -46,24 +46,13 @@ const OptionRateSection: React.FC<OptionRateSectionProps> = ({ form, setForm, ra
       <div className="mb-4">
         <h3 className="text-lg font-bold mb-2">Express Rate</h3>
         <div className="space-y-2">
-          {[
-            { label: "0.5", key: "0_5" },
-            { label: "1.0", key: "1_0" },
-            { label: "1.5", key: "1_5" },
-            { label: "2.0", key: "2_0" },
-            { label: "2.5", key: "2_5" },
-            { label: "3.0", key: "3_0" },
-            { label: "3.5", key: "3_5" },
-            { label: "4.0", key: "4_0" },
-            { label: "4.5", key: "4_5" },
-            { label: "5.0", key: "5_0" }
-          ].map(({ label, key }) => (
-            <div key={key}>
-              <label className="block text-gray-700">{label} kg</label>
+          {["0_5kg", "1_0kg", "1_5kg", "2_0kg", "2_5kg", "3_0kg", "3_5kg", "4_0kg", "4_5kg", "5_0kg"].map((weight) => (
+            <div key={weight}>
+              <label className="block text-gray-700">{weight}</label>
               <input
                 type="number"
-                name={key}
-                value={form[key] || 0}
+                name={weight}
+                value={form[weight] || 0} // Default to 0 if no value
                 onChange={handleChange}
                 className="w-full border rounded px-3 py-2 text-gray-900"
               />
