@@ -40,19 +40,35 @@ export async function GET(request: NextRequest) {
   return NextResponse.json({ routes });
 }
 
+
+
 export async function POST(request: NextRequest) {
   const adminUser = await getAdminUser(request);
   if (!adminUser) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const body = await request.json();
 
-  // Validate required fields
-  if (!body.originCountry || !body.destinationCountry || !body.routeType || !body.originCity || !body.destinationCity) {
-    return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+  // Only require routeName for all routes
+  if (!body.routeName) {
+    return NextResponse.json({ error: 'Route name is required' }, { status: 400 });
   }
 
-  // Convert string IDs to ObjectId
-  body.originCountry = new mongoose.Types.ObjectId(body.originCountry);
-  body.destinationCountry = new mongoose.Types.ObjectId(body.destinationCountry);
+  // For international routes, optionally validate countries
+  if (body.scope !== 'local') {
+    if (!body.originCountry || !body.destinationCountry) {
+      return NextResponse.json({ error: 'Origin and Destination Country are required for international routes' }, { status: 400 });
+    }
+    try {
+      if (body.originCountry) body.originCountry = new mongoose.Types.ObjectId(body.originCountry);
+      if (body.destinationCountry) body.destinationCountry = new mongoose.Types.ObjectId(body.destinationCountry);
+    } catch (err) {
+      return NextResponse.json({ error: 'Invalid country ID format' }, { status: 400 });
+    }
+  } else {
+    // For local routes, remove country fields if present (optional)
+    delete body.originCountry;
+    delete body.destinationCountry;
+  }
+
   if (body.createdBy) body.createdBy = new mongoose.Types.ObjectId(body.createdBy);
   if (body.updatedBy) body.updatedBy = new mongoose.Types.ObjectId(body.updatedBy);
   
@@ -63,9 +79,7 @@ export async function POST(request: NextRequest) {
   //     fastTrackRate: { ... },
   //     consoleRate: { ... },
   //     seaRate: { ... }
-  //   },
-  //   subCharge: number,
-  //   vatPercent: number
+  //   }
   // }
   // No legacy expressRate/optionRate/shippingConfig fields are needed.
 

@@ -31,7 +31,7 @@ type Route = {
 export default function AdminRoutesPage() { 
     const [routes, setRoutes] = useState<Route[]>([]); // State to store the list of routes
     const [loading, setLoading] = useState(true); // State to track loading status
-    const [error, setError] = useState(''); // State to track errors
+    const [error, setError] = useState<string | null>(null); // State to track errors
     const [dropdownOptions, setDropdownOptions] = useState<string[]>([]); // State for dropdown options
     const [countries, setCountries] = useState<any[]>([]);
     const [users, setUsers] = useState<any[]>([]);
@@ -210,7 +210,9 @@ export default function AdminRoutesPage() {
                                             if (modalMode === 'update' && selectedRoute) {
                                                 await updateRoute(selectedRoute._id, form);
                                             } else {
-                                                await axios.post('/api/admin/routes', form, { withCredentials: true });
+                                                // Ensure routeType is not required
+                                                const payload = { ...form, routeType: form.routeType || null };
+                                                await axios.post('/api/admin/routes', payload, { withCredentials: true });
                                                 toast.success('Route created');
                                                 handleRouteChanged();
                                             }
@@ -248,12 +250,12 @@ export default function AdminRoutesPage() {
                         data={routes}
                         actions={route => (
                             <div className="flex gap-2">
-                                <button
+                                <a
+                                    href={`/admin/routes/update?id=${route._id}`}
                                     className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
-                                    onClick={() => openUpdateModal(route)}
                                 >
                                     Edit
-                                </button>
+                                </a>
                                 <button
                                     className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-sm"
                                     onClick={() => handleDelete(route._id)}

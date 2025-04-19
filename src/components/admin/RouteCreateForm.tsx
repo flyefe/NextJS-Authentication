@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import ExpressRateSection from './ExpressRateSection';
 import OptionRateSection from './OptionRateSection';
 import ShippingConfigSection from './ShippingConfigSection';
 
@@ -7,7 +6,7 @@ const ROUTE_OPTIONS = [
   { key: 'seaCBM', label: 'Sea CBM', component: OptionRateSection },
   { key: 'seaFCL', label: 'Sea FCL', component: OptionRateSection },
   { key: 'seaLCL', label: 'Sea LCL', component: OptionRateSection },
-  { key: 'airExpress', label: 'Air Express', component: ExpressRateSection },
+  { key: 'airExpress', label: 'Air Express', component: OptionRateSection },
   { key: 'airFastTrack', label: 'Air Fast Track', component: OptionRateSection },
   { key: 'airConsole', label: 'Air Console', component: OptionRateSection },
 ];
@@ -277,6 +276,7 @@ const RouteCreateForm: React.FC<RouteCreateFormProps> = ({ countries, users, ini
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Form data being posted:', form); // Log the form data
     onSubmit(form);
   };
 
@@ -292,7 +292,6 @@ const RouteCreateForm: React.FC<RouteCreateFormProps> = ({ countries, users, ini
       </div>
       <form onSubmit={handleSubmit} className="space-y-6">
         <BasicRouteInfoSection form={form} setForm={setForm} countries={countries} users={users} />
-        <ExpressRateSection form={form} setForm={setForm} />
         <OptionRateSection form={form} setForm={setForm} />
         <ShippingConfigSection form={form} setForm={setForm} />
         <button

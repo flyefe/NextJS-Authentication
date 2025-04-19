@@ -8,14 +8,13 @@ import { useCountries } from "@/hooks/useCountries";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import OptionRateSection from "@/components/admin/OptionRateSection";
-import ExpressRateSection from "@/components/admin/ExpressRateSection";
 
 // Define the available shipping options and their corresponding rate sections.
 const ROUTE_OPTIONS = [
   { key: 'seaRate', label: 'Sea', component: OptionRateSection },
   { key: 'fastTrackRate', label: 'Fast Track', component: OptionRateSection },
   { key: 'consoleRate', label: 'Console', component: OptionRateSection },
-  { key: 'expressRate', label: 'Express', component: ExpressRateSection },
+  { key: 'expressRate', label: 'Express', component: OptionRateSection },
 ];
 
 /**
@@ -40,16 +39,16 @@ export default function CreateRoutePage() {
     shippingOptionConfig: {
       availableOptions: {
         expressRate: {
-          "0.5": 0,
-          "1.0": 0,
-          "1.5": 0,
-          "2.0": 0,
-          "2.5": 0,
-          "3.0": 0,
-          "3.5": 0,
-          "4.0": 0,
-          "4.5": 0,
-          "5.0": 0,
+          "0_5": 0,
+          "1_0": 0,
+          "1_5": 0,
+          "2_0": 0,
+          "2_5": 0,
+          "3_0": 0,
+          "3_5": 0,
+          "4_0": 0,
+          "4_5": 0,
+          "5_0": 0,
           extraHalfKgRate: 0,
           subCharge: 0,
           vatPercent: 0,
@@ -57,23 +56,31 @@ export default function CreateRoutePage() {
           active: true,
         },
         fastTrackRate: {
-          "1-5kg": "",
-          "6-10kg": "",
-          "above10kg": "",
+          "1-5kg": 0,
+          "6-10kg": 0,
+          "above10kg": 0,
           ratePerKg: 0,
           ratePerPiece: 0,
           ratePerVolume: 0,
+          hasBatteryRate: 0,
+          hasFoodRate: 0,
+          specialGoodsRate: 0,
+          hasChemicalRate: 0,
           customClearanceRateAir: 0,
           goodsCategory: [],
           active: true,
         },
         consoleRate: {
-          "1-5kg": "",
-          "6-10kg": "",
-          "above10kg": "",
+          "1-5kg": 0,
+          "6-10kg": 0,
+          "above10kg": 0,
           ratePerKg: 0,
           ratePerPiece: 0,
           ratePerVolume: 0,
+          hasBatteryRate: 0,
+          hasFoodRate: 0,
+          specialGoodsRate: 0,
+          hasChemicalRate: 0,
           customClearanceRateAir: 0,
           goodsCategory: [],
           active: true,
@@ -136,6 +143,29 @@ export default function CreateRoutePage() {
     setLoading(true);
     setError("");
     setSuccess("");
+    // Frontend validation
+
+    // Validate local route fields
+    if (form.scope === "local") {
+      if (!form.routeType || form.routeType.trim() === "") {
+        setError("Route type is required");
+        return;
+      }
+    }
+
+    // Validate international route fields
+    if (form.scope !== "local") {
+      if (!form.originCountry || form.originCountry === "") {
+        setError("Origin country is required for international routes");
+        return;
+      }
+      
+      if (!form.destinationCountry || form.destinationCountry === "") {
+        setError("Destination country is required for international routes");
+        return;
+      }
+    }
+    setLoading(true);
     try {
       // Construct payload to match backend expectation
       const {
@@ -147,7 +177,7 @@ export default function CreateRoutePage() {
       const payload = {
         routeName,
         scope,
-        routeType,
+        routeType: scope === 'local' ? routeType : null, // Conditionally set to null if scope is not local
         category,
         originCountry,
         originCity,
@@ -164,11 +194,14 @@ export default function CreateRoutePage() {
         active
       };
 
+      // Log expressRate payload for debugging
+      console.log('Express Rate Payload:', payload.shippingOptionConfig.availableOptions.expressRate);
+      // POST for create (editingId logic removed)
       await axios.post("/api/admin/routes", payload, { withCredentials: true });
       setSuccess("Route created successfully!");
       setTimeout(() => router.push("/admin/routes"), 1200);
     } catch (err: any) {
-      setError(err?.response?.data?.error || "Failed to create route");
+      setError(err?.response?.data?.error || `Failed to create route ${err?.message}`);
     } finally {
       setLoading(false);
     }
@@ -181,42 +214,46 @@ export default function CreateRoutePage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-gray-900">Route Name</label>
-            <input type="text" name="routeName" value={form.routeName} onChange={handleChange} className="w-full border rounded px-3 py-2 bg-white text-gray-900" required />
+            <input type="text" name="routeName" value={form.routeName} onChange={handleChange} className="w-full border rounded px-3 py-2 bg-white text-gray-900"  />
           </div>
           <div>
             <label className="block text-gray-900">Scope</label>
-            <select name="scope" value={form.scope} onChange={handleChange} className="w-full border rounded px-3 py-2 bg-white text-gray-900" required>
+            <select name="scope" value={form.scope} onChange={handleChange} className="w-full border rounded px-3 py-2 bg-white text-gray-900" >
               <option value="">Select</option>
               <option value="local">Local</option>
               <option value="international">International</option>
             </select>
           </div>
+          {/* Show Route Type only if scope is 'local' */}
           {form.scope === 'local' && (
             <div>
               <label className="block text-gray-900">Route Type</label>
-              <select name="routeType" value={form.routeType} onChange={handleChange} className="w-full border rounded px-3 py-2 bg-white text-gray-900" required>
+              <select name="routeType" value={form.routeType} onChange={handleChange} className="w-full border rounded px-3 py-2 bg-white text-gray-900" >
                 <option value="">Select</option>
                 <option value="intra-city">Intra-city</option>
                 <option value="inter-city">Inter-city</option>
               </select>
             </div>
           )}
-          <div>
-            <label className="block text-gray-900">Category</label>
-            <select name="category" value={form.category} onChange={handleChange} className="w-full border rounded px-3 py-2 bg-white text-gray-900" required>
-              <option value="">Select</option>
-              <option value="import">Import</option>
-              <option value="export">Export</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-gray-900">Origin Country</label>
-            <select
-              name="originCountry"
-              value={form.originCountry}
-              onChange={handleChange}
+          {/* Show Category, Origin Country, and Destination Country only if scope is NOT 'local' */}
+          {form.scope !== 'local' && (
+  <>
+    <div>
+      <label className="block text-gray-900">Category</label>
+      <select name="category" value={form.category} onChange={handleChange} className="w-full border rounded px-3 py-2 bg-white text-gray-900" >
+        <option value="">Select</option>
+        <option value="import">Import</option>
+        <option value="export">Export</option>
+      </select>
+    </div>
+    <div>
+      <label className="block text-gray-900">Origin Country</label>
+      <select
+        name="originCountry"
+        value={form.originCountry}
+        onChange={handleChange}
               className="w-full border rounded px-3 py-2 bg-white text-gray-900"
-              required
+              
               disabled={countriesLoading}
             >
               <option value="">{countriesLoading ? "Loading..." : "Select"}</option>
@@ -225,29 +262,35 @@ export default function CreateRoutePage() {
               ))}
             </select>
           </div>
+          {/* Origin City is always shown */}
+          
+    <div>
+      <label className="block text-gray-900">Destination Country</label>
+      <select
+        name="destinationCountry"
+        value={form.destinationCountry}
+        onChange={handleChange}
+        className="w-full border rounded px-3 py-2 bg-white text-gray-900"
+        
+        disabled={countriesLoading}
+      >
+        <option value="">{countriesLoading ? "Loading..." : "Select"}</option>
+        {countries.map(c => (
+          <option key={c._id} value={c._id}>{c.name}</option>
+        ))}
+      </select>
+    </div>
+  </>
+)}
+          {/* Destination City is always shown */}
           <div>
             <label className="block text-gray-900">Origin City</label>
-            <input type="text" name="originCity" value={form.originCity} onChange={handleChange} className="w-full border rounded px-3 py-2 bg-white text-gray-900" required />
+            <input type="text" name="originCity" value={form.originCity} onChange={handleChange} className="w-full border rounded px-3 py-2 bg-white text-gray-900"  />
           </div>
-          <div>
-            <label className="block text-gray-900">Destination Country</label>
-            <select
-              name="destinationCountry"
-              value={form.destinationCountry}
-              onChange={handleChange}
-              className="w-full border rounded px-3 py-2 bg-white text-gray-900"
-              required
-              disabled={countriesLoading}
-            >
-              <option value="">{countriesLoading ? "Loading..." : "Select"}</option>
-              {countries.map(c => (
-                <option key={c._id} value={c._id}>{c.name}</option>
-              ))}
-            </select>
-          </div>
+          
           <div>
             <label className="block text-gray-900">Destination City</label>
-            <input type="text" name="destinationCity" value={form.destinationCity} onChange={handleChange} className="w-full border rounded px-3 py-2 bg-white text-gray-900" required />
+            <input type="text" name="destinationCity" value={form.destinationCity} onChange={handleChange} className="w-full border rounded px-3 py-2 bg-white text-gray-900"  />
           </div>
         </div>
         <div>

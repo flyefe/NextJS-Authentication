@@ -7,7 +7,7 @@ import React from 'react';
 interface OptionRateSectionProps {  
   form: Record<string, any>;
   setForm: (value: Record<string, any>) => void;
-  rateType: 'seaRate' | 'fastTrackRate' | 'consoleRate';
+  rateType: 'seaRate' | 'fastTrackRate' | 'consoleRate' | 'expressRate';
 }
 
 /**
@@ -28,14 +28,101 @@ const OptionRateSection: React.FC<OptionRateSectionProps> = ({ form, setForm, ra
    */
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
+    console.log('Input value:', value); // Debug: Log the raw input value
     if (name === 'goodsCategory') {
-      setForm({ ...form, goodsCategory: value.split(',').map((s) => s.trim()).filter(Boolean) });
+      // Split by commas, trim leading/trailing whitespace, but preserve spaces within names
+      const categories = value.split(',').map((s) => s.trim());
+      console.log('Processed categories:', categories); // Debug: Log the processed categories
+      setForm({ ...form, goodsCategory: categories });
     } else if (type === 'checkbox') {
       setForm({ ...form, [name]: checked });
     } else {
       setForm({ ...form, [name]: value === '' ? '' : isNaN(Number(value)) ? value : Number(value) });
     }
   };
+
+  if (rateType === 'expressRate') {
+    return (
+      <div className="mb-4">
+        <h3 className="text-lg font-bold mb-2">Express Rate</h3>
+        <div className="space-y-2">
+          {[
+            { label: "0.5", key: "0_5" },
+            { label: "1.0", key: "1_0" },
+            { label: "1.5", key: "1_5" },
+            { label: "2.0", key: "2_0" },
+            { label: "2.5", key: "2_5" },
+            { label: "3.0", key: "3_0" },
+            { label: "3.5", key: "3_5" },
+            { label: "4.0", key: "4_0" },
+            { label: "4.5", key: "4_5" },
+            { label: "5.0", key: "5_0" }
+          ].map(({ label, key }) => (
+            <div key={key}>
+              <label className="block text-gray-700">{label} kg</label>
+              <input
+                type="number"
+                name={key}
+                value={form[key] || 0}
+                onChange={handleChange}
+                className="w-full border rounded px-3 py-2 text-gray-900"
+              />
+            </div>
+          ))}
+          <div>
+            <label className="block text-gray-700">Extra Half KG Rate</label>
+            <input
+              type="number"
+              name="extraHalfKgRate"
+              value={form.extraHalfKgRate ?? ''}
+              onChange={handleChange}
+              className="w-full border rounded px-3 py-2 text-gray-900"
+            />
+          </div>
+          <div>
+            <label className="block text-gray-700">Sub Charge</label>
+            <input
+              type="number"
+              name="subCharge"
+              value={form.subCharge ?? ''}
+              onChange={handleChange}
+              className="w-full border rounded px-3 py-2 text-gray-900"
+            />
+          </div>
+          <div>
+            <label className="block text-gray-700">VAT Percent</label>
+            <input
+              type="number"
+              name="vatPercent"
+              value={form.vatPercent ?? ''}
+              onChange={handleChange}
+              className="w-full border rounded px-3 py-2 text-gray-900"
+            />
+          </div>
+          <div>
+            <label className="block text-gray-700">Goods Category (comma separated)</label>
+            <input
+              type="text"
+              name="goodsCategory"
+              value={Array.isArray(form.goodsCategory) ? form.goodsCategory.join(', ') : ''}
+              onChange={handleChange}
+              className="w-full border rounded px-3 py-2 text-gray-900"
+            />
+          </div>
+          <div className="flex items-center mt-2">
+            <input
+              type="checkbox"
+              name="active"
+              checked={form.active}
+              onChange={handleChange}
+              className="mr-2"
+            />
+            <label className="text-gray-700">Is Active</label>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (rateType === 'fastTrackRate' || rateType === 'consoleRate') {
     return (
@@ -46,9 +133,9 @@ const OptionRateSection: React.FC<OptionRateSectionProps> = ({ form, setForm, ra
             <div key={range}>
               <label className="block text-gray-700">{range}</label>
               <input
-                type="text"
+                type="number"
                 name={range}
-                value={form[range] || ''}
+                value={form[range] || 0} // Default to 0 if no value
                 onChange={handleChange}
                 className="w-full border rounded px-3 py-2 text-gray-900"
               />
@@ -80,6 +167,46 @@ const OptionRateSection: React.FC<OptionRateSectionProps> = ({ form, setForm, ra
               type="number"
               name="ratePerVolume"
               value={form.ratePerVolume || ''}
+              onChange={handleChange}
+              className="w-full border rounded px-3 py-2 text-gray-900"
+            />
+          </div>
+          <div>
+            <label className="block text-gray-700">Has Battery Rate</label>
+            <input
+              type="number"
+              name="hasBatteryRate"
+              value={form.hasBatteryRate || ''}
+              onChange={handleChange}
+              className="w-full border rounded px-3 py-2 text-gray-900"
+            />
+          </div>
+          <div>
+            <label className="block text-gray-700">Has Food Rate</label>
+            <input
+              type="number"
+              name="hasFoodRate"
+              value={form.hasFoodRate || ''}
+              onChange={handleChange}
+              className="w-full border rounded px-3 py-2 text-gray-900"
+            />
+          </div>
+          <div>
+            <label className="block text-gray-700">Special Goods Rate</label>
+            <input
+              type="number"
+              name="specialGoodsRate"
+              value={form.specialGoodsRate || ''}
+              onChange={handleChange}
+              className="w-full border rounded px-3 py-2 text-gray-900"
+            />
+          </div>
+          <div>
+            <label className="block text-gray-700">Has Chemical Rate</label>
+            <input
+              type="number"
+              name="hasChemicalRate"
+              value={form.hasChemicalRate || ''}
               onChange={handleChange}
               className="w-full border rounded px-3 py-2 text-gray-900"
             />

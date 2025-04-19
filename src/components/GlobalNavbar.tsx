@@ -21,7 +21,7 @@ export default function GlobalNavbar() {
       <div className="hidden sm:flex items-center space-x-6 flex-1 ml-4">
         <Link href="/calculator" className={`font-medium hover:text-yellow-300 transition text-white ${pathname === "/calculator" ? "underline underline-offset-4 decoration-yellow-300" : ""}`}>Shipping Calculator</Link>
         {user?.isAdmin && (
-          <Link href="/admin" className={`font-medium hover:text-yellow-300 transition text-white ${pathname.startsWith("/admin") ? "underline underline-offset-4 decoration-yellow-300" : ""}`}>Admin</Link>
+          <Link href="/admin/routes" className={`font-medium hover:text-yellow-300 transition text-white ${pathname.startsWith("/admin/routes") ? "underline underline-offset-4 decoration-yellow-300" : ""}`}>Admin</Link>
         )}
       </div>
       {/* Hamburger button for mobile - now on the far right */}

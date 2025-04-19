@@ -91,8 +91,10 @@ const ModelCreateUpdateForm = ({
       const method = mode === 'update' ? 'put' : 'post';
       // Remove empty string values for select fields before submitting
       const cleanedForm = { ...form };
-      if (cleanedForm.routeType === "") delete cleanedForm.routeType;
-      if (cleanedForm.scope === "") delete cleanedForm.scope;
+      // Set default values to null for empty fields
+      if (cleanedForm.routeType === "") cleanedForm.routeType = null;
+      if (cleanedForm.scope === "") cleanedForm.scope = null;
+      if (cleanedForm.goodsCategory && cleanedForm.goodsCategory.length === 0) cleanedForm.goodsCategory = null;
       await axios({
         url: endpoint,
         method,
