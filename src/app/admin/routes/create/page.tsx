@@ -295,7 +295,7 @@ export default function CreateRoutePage() {
           </div>
         </div>
         <div>
-          <h3 className="text-lg font-bold mb-2 mt-4">Configure Rates for Shipping Options</h3>
+          <h3 className="text-lg font-bold mb-2 mt-4 text-gray-900">Configure Rates for Shipping Options</h3>
           <div className="flex space-x-2 mb-2">
             {ROUTE_OPTIONS.map(opt => (
               <button

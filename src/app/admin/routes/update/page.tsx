@@ -14,9 +14,9 @@ const ROUTE_OPTIONS = [
 ];
 
 export default function UpdateRoutePage() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const routeId = searchParams.get("id");
+  const router = useRouter(); // Router for navigation
+  const searchParams = useSearchParams(); // Search parameters for route ID
+  const routeId = searchParams.get("id"); // Route ID from URL
 
   // Holds the raw fetched route object
   const [route, setRoute] = useState<any>(null);
@@ -155,10 +155,42 @@ export default function UpdateRoutePage() {
     }
 
     try {
+      const {
+        routeName,
+        scope,
+        routeType,
+        category,
+        originCountry,
+        originCity,
+        destinationCountry,
+        destinationCity,
+        shippingOptionConfig,
+        active
+      } = form;
+
       const payload = {
-        ...form,
-        routeType: form.scope === "local" ? form.routeType : null,
+        routeName,
+        scope,
+        routeType: scope === "local" ? routeType : null,
+        category,
+        originCountry,
+        originCity,
+        destinationCountry,
+        destinationCity,
+        shippingOptionConfig: {
+          availableOptions: {
+            expressRate: shippingOptionConfig.availableOptions.expressRate,
+            fastTrackRate: shippingOptionConfig.availableOptions.fastTrackRate,
+            consoleRate: shippingOptionConfig.availableOptions.consoleRate,
+            seaRate: shippingOptionConfig.availableOptions.seaRate,
+          }
+        },
+        active
       };
+
+      // Log payload for debugging
+      console.log('Payload being sent to backend:', payload);
+      console.log('Express Rate Payload:', payload.shippingOptionConfig.availableOptions.expressRate);
 
       await axios.put(`/api/admin/routes/${routeId}`, payload, { withCredentials: true });
 
@@ -240,7 +272,7 @@ export default function UpdateRoutePage() {
                 >
                   <option value="">Select Origin Country</option>
                   {countries?.map((country) => (
-                    <option key={country.code} value={country.code}>
+                    <option key={country._id} value={country._id}>
                       {country.name}
                     </option>
                   ))}
@@ -268,7 +300,7 @@ export default function UpdateRoutePage() {
                 >
                   <option value="">Select Destination Country</option>
                   {countries?.map((country) => (
-                    <option key={country.code} value={country.code}>
+                    <option key={country._id} value={country._id}>
                       {country.name}
                     </option>
                   ))}
@@ -291,7 +323,7 @@ export default function UpdateRoutePage() {
 
         {/* Rate Tabs */}
         <div>
-          <h3 className="text-lg font-semibold mb-2 mt-4">Shipping Options</h3>
+          <h3 className="text-lg font-semibold mb-2 mt-4 text-gray-900">Shipping Options</h3>
           <div className="flex space-x-2 mb-2">
             {ROUTE_OPTIONS.map((opt) => (
               <button
@@ -316,7 +348,7 @@ export default function UpdateRoutePage() {
                   key={opt.key}
                   form={(form.shippingOptionConfig.availableOptions as Record<string, any>)?.[opt.key] || {}}
                   setForm={(data: any) => handleAvailableOptionRateChange(opt.key, data)}
-                  rateType={opt.key as "seaRate" | "fastTrackRate" | "consoleRate"}
+                  rateType={opt.key as "seaRate" | "fastTrackRate" | "consoleRate" | "expressRate"}
                 />
               );
             })}

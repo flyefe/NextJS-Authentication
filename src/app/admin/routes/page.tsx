@@ -7,10 +7,8 @@ import { useEffect, useState } from 'react';
 import AdminHeader from '@/components/admin/AdminHeader';
 import AdminSidebar from '@/components/admin/AdminSidebar';
 import DataTable from '@/components/admin/DataTable';
-import RouteCreateForm from '../../../components/admin/RouteCreateForm';
-import ExpressRateSection from '../../../components/admin/ExpressRateSection';
-import OptionRateSection from '../../../components/admin/OptionRateSection';
-import ShippingConfigSection from '../../../components/admin/ShippingConfigSection';    
+import RouteCreateForm from '../../../components/admin/RouteCreateForm';   
+import { useCountries } from "@/hooks/useCountries"; // Import the hook
 
 // TypeScript type for a route object
 type Route = {
@@ -23,31 +21,33 @@ type Route = {
     description?: string;
     routeType: string;
     scope: string;
+    category?: string;
     active: boolean;
     createdAt: string;
     updatedAt: string;
 };
 
 export default function AdminRoutesPage() { 
+    const { countries, loading: countriesLoading, error: countriesError } = useCountries(); // Use the hook
     const [routes, setRoutes] = useState<Route[]>([]); // State to store the list of routes
     const [loading, setLoading] = useState(true); // State to track loading status
     const [error, setError] = useState<string | null>(null); // State to track errors
     const [dropdownOptions, setDropdownOptions] = useState<string[]>([]); // State for dropdown options
-    const [countries, setCountries] = useState<any[]>([]);
     const [users, setUsers] = useState<any[]>([]);
     const router = useRouter();
+    const [selectedScope, setSelectedScope] = useState('');
 
     // Fetch routes, countries, and users
     useEffect(() => {
         setLoading(true);
         Promise.all([
             axios.get('/api/admin/routes', { withCredentials: true }),
-            axios.get('/api/admin/countries', { withCredentials: true }),
             axios.get('/api/admin/users', { withCredentials: true }),
         ])
-            .then(([routesRes, countriesRes, usersRes]) => {
+            .then(([routesRes, usersRes]) => {
+                console.log('Routes:', routesRes.data.routes); // Debug: Log routes data
+                console.log('Countries:', countries); // Debug: Log countries data
                 setRoutes(routesRes.data.routes);
-                setCountries(countriesRes.data.countries || []);
                 setUsers(usersRes.data.users || []);
                 const uniqueRouteTypes = Array.from(new Set<string>(routesRes.data.routes.map((route: Route) => route.routeType)));
                 setDropdownOptions(uniqueRouteTypes);
@@ -85,8 +85,6 @@ export default function AdminRoutesPage() {
         setModalOpen(true);
     };
 
-
-
     // Delete a route
     const handleDelete = async (id: string) => {
         if (!window.confirm('Are you sure you want to delete this route?')) return;
@@ -98,9 +96,6 @@ export default function AdminRoutesPage() {
             toast.error('Error deleting route');
         }
     };
-
-    // Remove global form state for single route; use per-modal state instead.
-    // Fetching and updating a single route is handled in modal logic below.
 
     // Function to open modal for editing a route
     const openUpdateModal = (route: Route) => {
@@ -136,19 +131,24 @@ export default function AdminRoutesPage() {
         }
     };
 
-    // Pass updateRoute to RouteCreateForm onSubmit in update mode:
-    // <RouteCreateForm
-    //   ...
-    //   initialValues={modalMode === 'update' && selectedRoute ? selectedRoute : undefined}
-    //   onSubmit={async (form) => {
-    //     if (modalMode === 'update' && selectedRoute) {
-    //       await updateRoute(selectedRoute._id, form);
-    //     } else {
-    //       ... // create logic
-    //     }
-    //   }}
-    // />
+    // Add search functionality to filter routes by name
+    const [searchQuery, setSearchQuery] = useState('');
+    const filteredRoutes = routes.filter(route => {
+        const matchesName = route.routeName?.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesScope = selectedScope ? route.scope === selectedScope : true;
+        return matchesName && matchesScope;
+    });
 
+    // Function to toggle the active status of a route
+    const toggleActiveStatus = async (id: string, newStatus: boolean) => {
+        try {
+            await axios.patch(`/api/admin/routes/${id}`, { active: newStatus }, { withCredentials: true });
+            toast.success(`Route ${newStatus ? 'activated' : 'deactivated'}`);
+            handleRouteChanged(); // Refresh the routes list
+        } catch (err: any) {
+            toast.error('Error updating route status');
+        }
+    };
 
     if (loading) return <div>Loading...</div>;
 
@@ -162,25 +162,37 @@ export default function AdminRoutesPage() {
                 <div className="max-w-6xl mx-auto p-4 sm:p-8 w-full flex flex-col">
                     {error && (
                         <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-                            {typeof error === 'string' ? error : (error?.message || 'An error occurred')}
+                            {error}
                         </div>
                     )}
                     <div className="flex items-center justify-between mb-8">
                         <h1 className="text-3xl font-extrabold text-blue-900 tracking-tight">Admin: Routes</h1>
                         <button
                             className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 font-semibold shadow"
-                            onClick={openCreateModal}
+                            onClick={() => router.push('/admin/routes/create')}
                         >
                             + Add Route
                         </button>
                     </div>
-                    {/* Dropdown for route types */}
-                    <select className="mb-4 p-2 border border-gray-300 rounded">
-                        <option value="">Select Route Type</option>
-                        {dropdownOptions.map(option => (
-                            <option key={option} value={option}>{option}</option>
+                    {/* Dropdown for route scopes */}
+                    <select
+                        className="mb-4 p-2 border border-gray-300 rounded text-gray-400"
+                        value={selectedScope}
+                        onChange={(e) => setSelectedScope(e.target.value)}
+                    >
+                        <option value="">Select Route Scope</option>
+                        {['local', 'international'].map(scope => (
+                            <option key={scope} value={scope}>{scope}</option>
                         ))}
                     </select>
+                    {/* Input for search */}
+                    <input
+                        type="text"
+                        placeholder="Search routes by name"
+                        value={searchQuery}
+                        onChange={e => setSearchQuery(e.target.value)}
+                        className="mb-4 p-2 border border-gray-300 rounded text-gray-900"
+                    />
                     {/* Modal for create/update */}
                     {modalOpen && (
                         <div
@@ -229,25 +241,34 @@ export default function AdminRoutesPage() {
                     <DataTable<Route>
                         columns={[
                             { key: 'routeName', label: 'Route Name', render: (val, row) => (
-  <a
-    href="/admin/routes/create"
-    className="text-blue-600 hover:underline"
-    title="Create new route"
-  >
-    {val}
-  </a>
-)},
-                            { key: 'originCity', label: 'Origin', render: (val, row) => `${row.originCity}, ${row.originCountry}` },
-                            { key: 'destinationCity', label: 'Destination', render: (val, row) => `${row.destinationCity}, ${row.destinationCountry}` },
-                            { key: 'routeType', label: 'Type', render: val => <span className="capitalize">{val}</span> },
+                                <a
+                                    href={`/admin/routes/update?id=${row._id}`}
+                                    className="text-blue-600 hover:underline"
+                                    title="Update route"
+                                >
+                                    {val}
+                                </a>
+                            )},
+                            { key: 'originCity', label: 'Origin', render: (val, row) => {
+                                const originCountryName = row.originCountry.name || 'Unknown';
+                                return `${row.originCity}, ${originCountryName}`;
+                            }},
+                            { key: 'destinationCity', label: 'Destination', render: (val, row) => {
+                                const destinationCountryName = row.destinationCountry.name || 'Unknown';
+                                return `${row.destinationCity}, ${destinationCountryName}`;
+                            }},
                             { key: 'scope', label: 'Scope', render: val => <span className="capitalize">{val}</span> },
-                            { key: 'active', label: 'Active', render: val => (
-                                <span className={val ? "inline-block px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded" : "inline-block px-2 py-1 text-xs font-semibold bg-red-100 text-red-700 rounded"}>
+                            { key: 'category', label: 'Category', render: val => <span className="capitalize">{val}</span> },
+                            { key: 'active', label: 'Active', render: (val, row) => (
+                                <span
+                                    onClick={() => toggleActiveStatus(row._id, !val)}
+                                    className={val ? "inline-block px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded cursor-pointer" : "inline-block px-2 py-1 text-xs font-semibold bg-red-100 text-red-700 rounded cursor-pointer"}
+                                >
                                     {val ? 'Yes' : 'No'}
                                 </span>
                             ) },
                         ]}
-                        data={routes}
+                        data={filteredRoutes}
                         actions={route => (
                             <div className="flex gap-2">
                                 <a
@@ -265,7 +286,6 @@ export default function AdminRoutesPage() {
                             </div>
                         )}
                     />
-
                 </div>
             </div>
         </div>

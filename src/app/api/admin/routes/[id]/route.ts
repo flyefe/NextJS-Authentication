@@ -68,8 +68,8 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   const body = await request.json();
 
   // Validate required fields
-  if (!body.originCountry || !body.destinationCountry || !body.routeType || !body.originCity || !body.destinationCity) {
-    return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+  if (!body.routeName) {
+    return NextResponse.json({ error: 'Route name is required' }, { status: 400 });
   }
 
   // Convert string IDs to ObjectId
