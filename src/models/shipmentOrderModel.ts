@@ -13,13 +13,13 @@ const ShipmentOrderSchema = new mongoose.Schema({
 
   goodsCategory: {
     type: String,
-    required: true,
+    required: false,
     enum: ["Has Battery", "No Battery", "Contains Food Stuff"]
   },
 
-  weight: { type: Number, required: true }, // in KG
-  volume: { type: Number, required: true }, // in CBM
-  containerType: { type: String, required: true }, // 20ft, 40ft, etc.
+  weight: { type: Number, required: false }, // in KG
+  volume: { type: Number, required: false }, // in CBM
+  containerType: { type: String, enum: ["20ft", "40ft", "40ft High Cube", "45ft High Cube", "Other"], required: false },
 
   pickupAddress: { type: mongoose.Schema.Types.ObjectId, ref: "Address" },
   dropOffAddress: { type: mongoose.Schema.Types.ObjectId, ref: "Address" },

@@ -271,6 +271,26 @@ const OptionRateSection: React.FC<OptionRateSectionProps> = ({ form, setForm, ra
             />
           </div>
           <div>
+            <label className="block text-gray-700">Rate Per 40ft High Cube</label>
+            <input
+              type="number"
+              name="ratePer40ftHighCube"
+              value={form.ratePer40ftHighCube || ''}
+              onChange={handleChange}
+              className="w-full border rounded px-3 py-2 text-gray-900"
+            />
+          </div>
+          <div>
+            <label className="block text-gray-700">Rate Per 45ft High Cube</label>
+            <input
+              type="number"
+              name="ratePer45ftHighCube"
+              value={form.ratePer45ftHighCube || ''}
+              onChange={handleChange}
+              className="w-full border rounded px-3 py-2 text-gray-900"
+            />
+          </div>
+          <div>
             <label className="block text-gray-700">Custom Clearance Cost</label>
             <input
               type="number"

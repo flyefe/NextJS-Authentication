@@ -43,6 +43,8 @@ const SeaRateSchema = new mongoose.Schema({
   ratePerCBM: { type: Number, default: 0 },
   ratePer20ft: { type: Number, default: 0 },
   ratePer40ft: { type: Number, default: 0 },
+  ratePer40ftHighCube: { type: Number, default: 0 },
+  ratePer45ftHighCube: { type: Number, default: 0 },
   customClearanceRatePerCBM: { type: Number, default: 0 },
   customClearanceCost: { type: Number, default: 0 },
   documentationCost: { type: Number, default: 0 },

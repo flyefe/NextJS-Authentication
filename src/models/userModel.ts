@@ -147,6 +147,22 @@ const UserSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  isStaff: {
+    type: Boolean,
+    default: false,
+  },
+  isCustomer: {
+    type: Boolean,
+    default: false,
+  },
+  isDriver: {
+    type: Boolean,
+    default: false,
+  },
+  isShipmentStaff: {
+    type: Boolean,
+    default: false,
+  },
   forgotPasswordToken: String,
   forgotPasswordTokenExpiry: Date,
   verifyToken: String,

@@ -89,6 +89,8 @@ export default function CreateRoutePage() {
           ratePerCBM: 0,
           ratePer20ft: 0,
           ratePer40ft: 0,
+          ratePer40ftHighCube: 0,
+          ratePer45ftHighCube: 0,
           customClearanceRatePerCBM: 0,
           customClearanceCost: 0,
           documentationCost: 0,
