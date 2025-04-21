@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import OptionRateSection from './OptionRateSection';
-import ShippingConfigSection from './ShippingConfigSection';
+import ShippingConfigSection from '../ShippingConfigSection';
 
 const ROUTE_OPTIONS = [
   { key: 'seaCBM', label: 'Sea CBM', component: OptionRateSection },

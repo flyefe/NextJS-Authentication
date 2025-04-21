@@ -1,21 +1,18 @@
 import mongoose from "mongoose";
 
 const ShipmentOrderSchema = new mongoose.Schema({
-  customer: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  customer: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true},
+  customerPhone: { type: String, required: true },
 
   routeId: { type: mongoose.Schema.Types.ObjectId, ref: "Route", required: true },
+  shippingOption: { type: String, required: true },
+  goodsCategory: { type: String, required: false},
 
-  shippingOption: { 
-    type: String, 
-    required: true, 
-    enum: ["Express", "Fast Track", "Console", "Sea"] 
-  },
+  item: { type: String, required: false },
+  itemDescription: { type: String, required: false },
+  quantity: { type: Number, required: false },
+  itemCost: { type: Number, required: false },
 
-  goodsCategory: {
-    type: String,
-    required: false,
-    enum: ["Has Battery", "No Battery", "Contains Food Stuff"]
-  },
 
   weight: { type: Number, required: false }, // in KG
   volume: { type: Number, required: false }, // in CBM
@@ -28,8 +25,9 @@ const ShipmentOrderSchema = new mongoose.Schema({
   destinationCountry: { type: mongoose.Schema.Types.ObjectId, ref: "Country", required: true },
 
   amount: { type: Number, required: true }, // total cost (naira, USD, etc.)
-
   exchangeRateUsed: { type: Number }, // store applied rate for historical accuracy
+  comment: { type: String },
+  remark: { type: String },
 
   status: { 
     type: String, 
@@ -38,11 +36,23 @@ const ShipmentOrderSchema = new mongoose.Schema({
   },
 
   trackingNumber: { type: String },
-  notes: { type: String },
 
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   updatedAt: { type: Date, default: Date.now },
+
+  eta: { type: Date },
+  pickupTime: { type: Date },
+  deliveryTime: { type: Date },
+  referenceNumber: { type: String },
+  updateHistory: [{
+    updatedAt: { type: Date, default: Date.now },
+    updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    changes: { type: Object }, // { fieldName: previousValue }
+    comment: { type: String },
+  }],
+
+  assignedTo: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
 }, { timestamps: true });
 
 const ShipmentOrder = mongoose.models.ShipmentOrder || mongoose.model("ShipmentOrder", ShipmentOrderSchema);

@@ -7,7 +7,7 @@ import React, { useState } from "react";
 import { useCountries } from "@/hooks/useCountries";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import OptionRateSection from "@/components/admin/OptionRateSection";
+import OptionRateSection from "@/components/admin/routes/OptionRateSection";
 
 // Define the available shipping options and their corresponding rate sections.
 const ROUTE_OPTIONS = [

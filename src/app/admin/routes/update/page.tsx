@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useCountries } from "@/hooks/useCountries";
 import axios from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
-import OptionRateSection from "@/components/admin/OptionRateSection";
+import OptionRateSection from "@/components/admin/routes/OptionRateSection";
 
 const ROUTE_OPTIONS = [
   { key: "seaRate", label: "Sea", component: OptionRateSection },

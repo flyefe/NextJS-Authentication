@@ -33,9 +33,39 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   const adminUser = await getAdminUser(request);
   if (!adminUser) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const body = await request.json();
-  const shipment = await Shipment.findByIdAndUpdate(params.id, body, { new: true });
-  if (!shipment) return NextResponse.json({ error: "Shipment not found" }, { status: 404 });
-  return NextResponse.json({ shipment });
+
+  // Fetch old shipment to compare
+  const oldShipment = await Shipment.findById(params.id);
+  if (!oldShipment) return NextResponse.json({ error: "Shipment not found" }, { status: 404 });
+
+  // Compare and build changes object
+  const changes: Record<string, any> = {};
+  for (const key in body) {
+    if (key !== "updateHistory" && oldShipment[key] !== body[key]) {
+      changes[key] = oldShipment[key];
+    }
+  }
+
+  // Push to updateHistory if there are changes
+  if (Object.keys(changes).length > 0) {
+    oldShipment.updateHistory = oldShipment.updateHistory || [];
+    oldShipment.updateHistory.push({
+      updatedAt: new Date(),
+      updatedBy: adminUser._id,
+      changes,
+      comment: body.historyComment || ""
+    });
+  }
+
+  // Update shipment fields
+  for (const key in body) {
+    if (key !== "updateHistory" && key !== "historyComment") {
+      oldShipment[key] = body[key];
+    }
+  }
+  await oldShipment.save();
+
+  return NextResponse.json({ shipment: oldShipment });
 }
 
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {

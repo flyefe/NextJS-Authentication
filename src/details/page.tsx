@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import OptionRateSection from "@/components/admin/OptionRateSection";
+import OptionRateSection from "@/components/admin/routes/OptionRateSection";
 import ExpressRateSection from "@/components/admin/ExpressRateSection";
 import axios from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
