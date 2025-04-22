@@ -41,8 +41,28 @@ export async function POST(request: NextRequest) {
   if (!adminUser) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   try {
-    const body = await request.json();
+    // Gracefully handle empty or invalid JSON input
+    let body: any;
+    try {
+      body = await request.json();
+    } catch {
+      body = {};
+    }
+    console.log('Received user creation data (POST):', body);
     
+    // Validate and normalize nested objects
+    if ('profile' in body && typeof body.profile !== 'object') {
+      return NextResponse.json({ error: 'profile must be an object' }, { status: 400 });
+    }
+    if ('company' in body && typeof body.company !== 'object') {
+      return NextResponse.json({ error: 'company must be an object' }, { status: 400 });
+    }
+    if (!('profile' in body)) {
+      body.profile = {};
+    }
+    if (!('company' in body)) {
+      body.company = {};
+    }
     // Create new user
     const user = new User({ 
       ...body, 

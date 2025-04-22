@@ -1,58 +1,64 @@
 import mongoose from "mongoose";
 
 const ShipmentOrderSchema = new mongoose.Schema({
-  customer: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true},
-  customerPhone: { type: String, required: true },
+  customer: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  customerPhone: { type: String, required: false, default: "" },
 
   routeId: { type: mongoose.Schema.Types.ObjectId, ref: "Route", required: true },
-  shippingOption: { type: String, required: true },
-  goodsCategory: { type: String, required: false},
+  shippingOption: { type: String, required: true, default: "" },
+  goodsCategory: { type: String, required: false, default: "" },
 
-  item: { type: String, required: false },
-  itemDescription: { type: String, required: false },
-  quantity: { type: Number, required: false },
-  itemCost: { type: Number, required: false },
+  item: { type: String, required: false, default: "" },
+  itemDescription: { type: String, required: false, default: "" },
+  quantity: { type: Number, required: false, default: null },
+  itemCost: { type: Number, required: false, default: null },
 
+  weight: { type: Number, required: false, default: null },
+  volume: { type: Number, required: false, default: null },
+  containerType: { 
+    type: String, 
+    enum: ["20ft", "40ft", "40ft High Cube", "45ft High Cube", "Other", ""],
+    required: false,
+    default: "" 
+  },
 
-  weight: { type: Number, required: false }, // in KG
-  volume: { type: Number, required: false }, // in CBM
-  containerType: { type: String, enum: ["20ft", "40ft", "40ft High Cube", "45ft High Cube", "Other"], required: false },
+  pickupAddress: { type: String, required: false, default: "" },
+  dropOffAddress: { type: String, required: false, default: "" },
 
-  pickupAddress: { type: mongoose.Schema.Types.ObjectId, ref: "Address" },
-  dropOffAddress: { type: mongoose.Schema.Types.ObjectId, ref: "Address" },
+  originCountry: { type: String, required: true, default: "" },
+  destinationCountry: { type: String, required: true, default: "" },
 
-  originCountry: { type: mongoose.Schema.Types.ObjectId, ref: "Country", required: true },
-  destinationCountry: { type: mongoose.Schema.Types.ObjectId, ref: "Country", required: true },
-
-  amount: { type: Number, required: true }, // total cost (naira, USD, etc.)
-  exchangeRateUsed: { type: Number }, // store applied rate for historical accuracy
-  comment: { type: String },
-  remark: { type: String },
+  amount: { type: Number, required: false, default: null },
+  exchangeRateUsed: { type: Number, required: false, default: null },
+  comment: { type: String, required: false, default: "" },
+  remark: { type: String, required: false, default: "" },
 
   status: { 
     type: String, 
-    enum: ["pending", "processing", "shipped", "delivered", "cancelled"], 
-    default: "pending" 
+    enum: ["pending", "processing", "shipped", "delivered", "cancelled", ""],
+    default: "" 
   },
 
-  trackingNumber: { type: String },
+  trackingNumber: { type: String, required: true, default: "" },
 
-  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-  updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
+  updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
   updatedAt: { type: Date, default: Date.now },
 
-  eta: { type: Date },
-  pickupTime: { type: Date },
-  deliveryTime: { type: Date },
-  referenceNumber: { type: String },
+  eta: { type: Date, default: null },
+  pickupTime: { type: Date, default: null },
+  deliveryTime: { type: Date, default: null },
+  referenceNumber: { type: String, default: "" },
+
   updateHistory: [{
     updatedAt: { type: Date, default: Date.now },
-    updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    changes: { type: Object }, // { fieldName: previousValue }
-    comment: { type: String },
+    updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
+    changes: { type: Object, default: {} },
+    comment: { type: String, default: "" },
   }],
 
-  assignedTo: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  assignedTo: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
+
 }, { timestamps: true });
 
 const ShipmentOrder = mongoose.models.ShipmentOrder || mongoose.model("ShipmentOrder", ShipmentOrderSchema);

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { toast } from 'react-hot-toast';
 
 interface ShipmentOrderFormProps {
     onSubmit?: (formData: any) => void;
@@ -17,33 +18,65 @@ interface Route {
 import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function ShipmentOrderForm({ onSubmit, loading = false, id }: ShipmentOrderFormProps) {
-    const [formData, setFormData] = useState<any>({
+    interface ShipmentOrderFormState {
+        customer: string;
+        customerPhone: string;
+        routeId: string;
+        shippingOption: string;
+        goodsCategory: string;
+        item: string;
+        itemDescription: string;
+        quantity: number;
+        itemCost: number;
+        weight: number;
+        volume: number;
+        containerType: string;
+        pickupAddress: string;
+        dropOffAddress: string;
+        originCountry: string;
+        destinationCountry: string;
+        amount: number;
+        exchangeRateUsed: number;
+        comment: string;
+        remark: string;
+        status: string;
+        trackingNumber: string;
+        eta: string | null;
+        pickupTime: string | null;
+        deliveryTime: string | null;
+        referenceNumber: string;
+        assignedTo: string;
+        updatedAt?: string | null; // for edit mode, ISO string for datetime-local
+    }
+
+    const [formData, setFormData] = useState<ShipmentOrderFormState>({
         customer: '',
         customerPhone: '',
-        routeId: '',
-        shippingOption: '',
+        routeId: '', //Ensure routeId is set to valid ObjectId
+        shippingOption: '', 
         goodsCategory: '',
         item: '',
         itemDescription: '',
-        quantity: '',
-        itemCost: '',
-        weight: '',
-        volume: '',
+        quantity: 0,
+        itemCost: 0,
+        weight: 0,
+        volume: 0,
         containerType: '',
         pickupAddress: '',
         dropOffAddress: '',
         originCountry: '',
         destinationCountry: '',
-        amount: '',
-        exchangeRateUsed: '',
-        eta: '',
+        amount: 0,
+        exchangeRateUsed: 0,
         comment: '',
         remark: '',
-        status: '',
-        pickupTime: '',
-        deliveryTime: '',
-        referenceNumber: '',
+        status: 'pending',
         trackingNumber: '',
+        eta: null,
+        pickupTime: null,
+        deliveryTime: null,
+        referenceNumber: '',
+        assignedTo: '',
     });
 
     const [routes, setRoutes] = useState<any[]>([]);
@@ -55,9 +88,21 @@ export default function ShipmentOrderForm({ onSubmit, loading = false, id }: Shi
     const [customers, setCustomers] = useState<any[]>([]);
     const [staff, setStaff] = useState<any[]>([]);
 
+    // Helper to format date for datetime-local input
+    function toDatetimeLocal(dt: string | Date | null) {
+        if (!dt) return "";
+        const d = new Date(dt);
+        return d.toISOString().slice(0, 16);
+    }
+
+    // State to track when routes are loaded
+    const [routesLoaded, setRoutesLoaded] = useState(false);
     useEffect(() => {
         axios.get('/api/admin/routes')
-            .then(response => setRoutes(response.data.routes))
+            .then(response => {
+                setRoutes(response.data.routes);
+                setRoutesLoaded(true);
+            })
             .catch(error => console.error('Error fetching routes:', error));
     }, []);
 
@@ -78,20 +123,37 @@ export default function ShipmentOrderForm({ onSubmit, loading = false, id }: Shi
     }, []);
 
     // Fetch shipment order if editing
+    // Wait until both routes and shipment are loaded before populating form for edit
     useEffect(() => {
-        if (isEdit && id) {
+        if (isEdit && id && routesLoaded) {
             setLoadingShipment(true);
             axios.get(`/api/admin/shipments/${id}`, { withCredentials: true })
                 .then(res => {
-                    setFormData(res.data.shipment);
+                    const shipment = res.data.shipment;
+                    // Format date fields for datetime-local input
+                    shipment.eta = toDatetimeLocal(shipment.eta);
+                    shipment.pickupTime = toDatetimeLocal(shipment.pickupTime);
+                    shipment.deliveryTime = toDatetimeLocal(shipment.deliveryTime);
+                    // Optionally format updatedAt if you use it in a date input
+                    if (shipment.updatedAt) shipment.updatedAt = toDatetimeLocal(shipment.updatedAt);
+                    else shipment.updatedAt = toDatetimeLocal(new Date());
+                    if (shipment.createdAt) shipment.createdAt = toDatetimeLocal(shipment.createdAt);
+                    if (Array.isArray(shipment.updateHistory)) {
+                        shipment.updateHistory = shipment.updateHistory.map((entry: any) => ({
+                            ...entry,
+                            updatedAt: entry.updatedAt ? toDatetimeLocal(entry.updatedAt) : null,
+                        }));
+                    }
+                    setFormData(shipment);
                 })
                 .catch(() => {
                     // handle error
                 })
                 .finally(() => setLoadingShipment(false));
         }
-    }, [isEdit, id]);
+    }, [isEdit, id, routesLoaded]);
 
+    // When routeId changes, update active shipping options and clear shippingOption
     // When routeId changes, update active shipping options and clear shippingOption
     useEffect(() => {
         if (!formData.routeId) {
@@ -109,18 +171,24 @@ export default function ShipmentOrderForm({ onSubmit, loading = false, id }: Shi
             if (available.consoleRate?.active) options.push('Console');
             if (available.fastTrackRate?.active) options.push('Fast Track');
             setActiveOptions(options);
+            // If editing, do not clear shippingOption/goodsCategory
         } else {
             setActiveOptions([]);
         }
-        setGoodsCategories([]);
-        setFormData((prev: typeof formData) => ({ ...prev, shippingOption: '', goodsCategory: '' }));
-    }, [formData.routeId, routes]);
+        // Only clear on create, not on edit
+        if (!isEdit) {
+            setGoodsCategories([]);
+            setFormData((prev: typeof formData) => ({ ...prev, shippingOption: '', goodsCategory: '' }));
+        }
+    }, [formData.routeId, routes, isEdit]);
 
+    // When shippingOption changes, update goodsCategory choices
     // When shippingOption changes, update goodsCategory choices
     useEffect(() => {
         if (!formData.routeId || !formData.shippingOption) {
             setGoodsCategories([]);
-            setFormData((prev: typeof formData) => ({ ...prev, goodsCategory: '' }));
+            // Only clear on create, not on edit
+            if (!isEdit) setFormData((prev: typeof formData) => ({ ...prev, goodsCategory: '' }));
             return;
         }
         const selectedRoute = routes.find((r: any) => r._id === formData.routeId);
@@ -145,29 +213,68 @@ export default function ShipmentOrderForm({ onSubmit, loading = false, id }: Shi
             }
         }
         setGoodsCategories(categories);
-        setFormData((prev: typeof formData) => ({ ...prev, goodsCategory: '' }));
-    }, [formData.shippingOption, formData.routeId, routes]);
+        // Only clear on create, not on edit
+        if (!isEdit) setFormData((prev: typeof formData) => ({ ...prev, goodsCategory: '' }));
+    }, [formData.shippingOption, formData.routeId, routes, isEdit]);
 
+    // Handle form changes
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
-        setFormData((prev: typeof formData) => ({ ...prev, [name]: value }));
+        setFormData((prev) => ({ ...prev, [name as keyof ShipmentOrderFormState]: value }));
     };
 
+    // Handle form submission       
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        // Clean the form data
+        // Convert date fields from string to Date or null
+        const cleanedFormData: any = { ...formData };
+        // Always set updatedAt to now when updating
+        if (isEdit) {
+            cleanedFormData.updatedAt = new Date().toISOString();
+        } else {
+            cleanedFormData.updatedAt = formData.updatedAt ? new Date(formData.updatedAt) : null;
+        }
+        (['eta', 'pickupTime', 'deliveryTime'] as const).forEach((field) => {
+            const value = formData[field];
+            cleanedFormData[field] = value ? new Date(value) : null;
+        });
+        (Object.keys(cleanedFormData) as (keyof ShipmentOrderFormState)[]).forEach((key) => {
+            if (cleanedFormData[key] === undefined) {
+                cleanedFormData[key] = null;
+            }
+        });
+        // assignedTo should be null if empty
+        if (!cleanedFormData.assignedTo) cleanedFormData.assignedTo = null;
+        console.log('Cleaned form data being sent:', cleanedFormData); // Log the cleaned form data
+        if (!cleanedFormData.customer || !cleanedFormData.routeId || !cleanedFormData.shippingOption || !cleanedFormData.originCountry || !cleanedFormData.destinationCountry || !cleanedFormData.trackingNumber) {
+            alert('Please fill in all required fields.');
+            return;
+        }
         if (isEdit && id) {
             // Update
             try {
-                await axios.put(`/api/admin/shipments/${id}`, formData, { withCredentials: true });
-                alert('Shipment order updated successfully');
+                await axios.put(`/api/admin/shipments/${id}`, cleanedFormData, { withCredentials: true });
+                toast.success('Shipment order updated successfully');
                 router.push('/admin/shipments');
             } catch (err) {
-                alert('Error updating shipment order');
+                toast.error('Error updating shipment order');
             }
         } else if (onSubmit) {
-            onSubmit(formData);
+            // Create
+            try {
+                await axios.post('/api/admin/shipments', cleanedFormData, { withCredentials: true });
+                toast.success('Shipment order created successfully');
+                router.push('/admin/shipments');
+            } catch (err) {
+                console.error('Error creating shipment order:', err);
+                toast.error('Error creating shipment order');
+            }
         }
     };
+
+    // Filter staff to include only users who are staff, admin, or shipping staff
+    const filteredStaff = staff.filter(member => member.isStaff || member.isAdmin || member.isShipmentStaff);
 
     return (
         <div className="flex flex-col md:flex-row">
@@ -195,7 +302,7 @@ export default function ShipmentOrderForm({ onSubmit, loading = false, id }: Shi
                     >
                         <option value="">Select Customer</option>
                         {customers.map(customer => (
-                            <option key={customer._id} value={customer._id} className="text-gray-700">{customer.name}</option>
+                            <option key={customer._id} value={customer._id} className="text-gray-700">{customer.email}</option>
                         ))}
                     </select>
                     <label className="block font-semibold mb-1 text-xs text-gray-700">Route</label>
@@ -401,7 +508,7 @@ export default function ShipmentOrderForm({ onSubmit, loading = false, id }: Shi
                         <input
                             type="datetime-local"
                             name="pickupTime"
-                            value={formData.pickupTime}
+                            value={formData.pickupTime ?? ''}
                             onChange={handleChange}
                             className="w-full p-1 border border-gray-300 rounded text-gray-900 text-xs"
                         />
@@ -411,7 +518,7 @@ export default function ShipmentOrderForm({ onSubmit, loading = false, id }: Shi
                         <input
                             type="datetime-local"
                             name="deliveryTime"
-                            value={formData.deliveryTime}
+                            value={formData.deliveryTime ?? ''}
                             onChange={handleChange}
                             className="w-full p-1 border border-gray-300 rounded text-gray-900 text-xs"
                         />
@@ -436,84 +543,85 @@ export default function ShipmentOrderForm({ onSubmit, loading = false, id }: Shi
                         />
                     </div>
                 </div>
-            </form>
-            {/* Action Column */}
-            <div className="w-full md:w-1/4 p-4">
-                <button
-                    type="submit"
-                    className="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 font-semibold shadow"
-                    disabled={loading || loadingShipment}
-                >
-                    {loading || loadingShipment ? (isEdit ? 'Updating...' : 'Creating...') : (isEdit ? 'Update Shipment Order' : 'Create Shipment Order')}
-                </button>
-                <div className="mt-4 space-y-3">
-                    <div>
-                        <label className="block font-semibold mb-1 text-xs text-gray-700">Assigned Staff</label>
-                        <select
-                            name="assignedTo"
-                            value={formData.assignedTo}
-                            onChange={handleChange}
-                            className="w-full p-1 border border-gray-300 rounded text-gray-700 text-xs bg-gray-100"
-                        >
-                            <option value="">Select Staff</option>
-                            {staff.map(member => (
-                                <option key={member._id} value={member._id} className="text-gray-700">{member.name}</option>
-                            ))}
-                        </select>
-                    </div>
-                    <div>
-                        <label className="block font-semibold mb-1 text-xs text-gray-700">Status</label>
-                        <select
-                            name="status"
-                            value={formData.status}
-                            onChange={handleChange}
-                            className="w-full p-1 border border-gray-300 rounded text-gray-900 text-xs bg-gray-100"
-                        >
-                            <option value="">Select Status</option>
-                            <option value="pending">Pending</option>
-                            <option value="processing">Processing</option>
-                            <option value="shipped">Shipped</option>
-                            <option value="delivered">Delivered</option>
-                            <option value="cancelled">Cancelled</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label className="block font-semibold mb-1 text-xs text-gray-700">Remark</label>
-                        <textarea
-                            name="remark"
-                            value={formData.remark}
-                            onChange={(e) => handleChange(e as React.ChangeEvent<HTMLTextAreaElement>)}
-                            className="w-full p-1 border border-gray-300 rounded text-gray-900 text-xs"
-                        />
-                    </div>
-                    {isEdit && (
+               
+                 {/* Action Column */}
+                <div className="w-full md:w-1/4 p-4">
+                    <button
+                        type="submit"
+                        className="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 font-semibold shadow"
+                        disabled={loading || loadingShipment}
+                    >
+                        {loading || loadingShipment ? (isEdit ? 'Updating...' : 'Creating...') : (isEdit ? 'Update Shipment Order' : 'Create Shipment Order')}
+                    </button>
+                    <div className="mt-4 space-y-3">
                         <div>
-                            <label className="block font-semibold mb-1 text-xs text-gray-700">Updated At</label>
-                            <input
-                                type="time"
-                                name="updatedAt"
-                                value={formData.updatedAt}
+                            <label className="block font-semibold mb-1 text-xs text-gray-700">Assigned Staff</label>
+                            <select
+                                name="assignedTo"
+                                value={formData.assignedTo}
                                 onChange={handleChange}
                                 className="w-full p-1 border border-gray-300 rounded text-gray-700 text-xs bg-gray-100"
+                            >
+                                <option value="">Select Staff</option>
+                                {filteredStaff.map(member => (
+                                    <option key={member._id} value={member._id} className="text-gray-700">{member.email}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block font-semibold mb-1 text-xs text-gray-700">Status</label>
+                            <select
+                                name="status"
+                                value={formData.status}
+                                onChange={handleChange}
+                                className="w-full p-1 border border-gray-300 rounded text-gray-900 text-xs bg-gray-100"
+                            >
+                                <option value="">Select Status</option>
+                                <option value="pending">Pending</option>
+                                <option value="processing">Processing</option>
+                                <option value="shipped">Shipped</option>
+                                <option value="delivered">Delivered</option>
+                                <option value="cancelled">Cancelled</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block font-semibold mb-1 text-xs text-gray-700">Remark</label>
+                            <textarea
+                                name="remark"
+                                value={formData.remark}
+                                onChange={(e) => handleChange(e as React.ChangeEvent<HTMLTextAreaElement>)}
+                                className="w-full p-1 border border-gray-300 rounded text-gray-900 text-xs"
                             />
                         </div>
-                    )}
-                    <div>
-                        <label className="block font-semibold mb-1 text-xs text-gray-700">Updated By</label>
-                        <select
-                            name="updatedBy"
-                            value={formData.updatedBy}
-                            onChange={handleChange}
-                            className="w-full p-1 border border-gray-300 rounded text-gray-700 text-xs bg-gray-100"
-                        >
-                            <option value="">Select Staff</option>
-                            {staff.map(member => (
-                                <option key={member._id} value={member._id} className="text-gray-700">{member.name}</option>
-                            ))}
-                        </select>
+                        {isEdit && (
+                            <div>
+                                <label className="block font-semibold mb-1 text-xs text-gray-700">Updated At</label>
+                                <input
+                                    type="datetime-local"
+                                    name="updatedAt"
+                                    value={formData.updatedAt}
+                                    onChange={handleChange}
+                                    className="w-full p-1 border border-gray-300 rounded text-gray-700 text-xs bg-gray-100"
+                                />
+                            </div>
+                        )}
+                        <div>
+                            <label className="block font-semibold mb-1 text-xs text-gray-700">Updated By</label>
+                            <select
+                                name="updatedBy"
+                                value={formData.updatedBy}
+                                onChange={handleChange}
+                                className="w-full p-1 border border-gray-300 rounded text-gray-700 text-xs bg-gray-100"
+                            >
+                                <option value="">Select Staff</option>
+                                {filteredStaff.map(member => (
+                                    <option key={member._id} value={member._id} className="text-gray-700">{member.email}</option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </form>
         </div>
     );
 }

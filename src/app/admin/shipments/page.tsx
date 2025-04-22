@@ -39,7 +39,7 @@ export default function AdminShipmentOrdersPage() {
         setLoading(true);
         axios.get('/api/admin/shipments', { withCredentials: true })
             .then(res => {
-                setShipmentOrders(res.data.shipmentOrders);
+                setShipmentOrders(res.data.shipments);
             })
             .catch(err => {
                 setError(err?.response?.data?.error || err?.message || 'Unauthorized or error fetching data');

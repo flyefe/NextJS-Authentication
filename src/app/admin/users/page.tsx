@@ -75,11 +75,20 @@ export default function AdminUsersPage() {
         setModalOpen(true);
     };
 
-    // Open modal for updating a user
-    const openUpdateModal = (user: User) => {
-        setModalMode('update');
-        setSelectedUser(user);
-        setModalOpen(true);
+    // Function to open the update modal and fetch user data
+    const openUpdateModal = async (userId) => {
+        try {
+            const response = await axios.get(`/api/admin/users/${userId}`, { withCredentials: true });
+            const userData = response.data.user;
+            console.log('Fetched user data for update:', userData); // Log the fetched user data
+            console.log('Selected user data for update:', userData);
+            setModalMode('update');
+            setSelectedUser(userData);
+            setModalOpen(true);
+        } catch (error) {
+            console.error('Error fetching user data:', error);
+            toast.error('Failed to fetch user data');
+        }
     };
 
     // Delete a user
@@ -137,8 +146,8 @@ export default function AdminUsersPage() {
                                 <ModelCreateUpdateForm
                                     model="user"
                                     mode={modalMode}
-                                    id={modalMode === 'update' ? selectedUser?._id : undefined}
-                                    initialValues={modalMode === 'update' && selectedUser ? selectedUser : {}}
+                                    id={selectedUser?._id}
+                                    initialValues={selectedUser}
                                     onSuccess={handleUserChanged}
                                 />
                             </div>
@@ -170,7 +179,7 @@ export default function AdminUsersPage() {
                             <div className="flex gap-2">
                                 <button
                                     className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
-                                    onClick={() => openUpdateModal(user)}
+                                    onClick={() => openUpdateModal(user._id)}
                                 >
                                     Edit
                                 </button>

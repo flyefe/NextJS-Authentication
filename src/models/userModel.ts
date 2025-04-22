@@ -4,32 +4,32 @@ import mongoose from "mongoose";
 const UserProfileSchema = new mongoose.Schema({
   firstName: {
     type: String,
-    required: [true, "Please provide a first name"],
+    required: [false, "Please provide a first name"],
   },
   lastName: {
     type: String,
-    required: [true, "Please provide a last name"],
+    required: [false, "Please provide a last name"],
   },
   address: {
     type: String,
-    required: [true, "Please provide an address"],
+    required: [false, "Please provide an address"],
   },
   phoneNumber: {
     type: String,
-    required: [true, "Please provide a phone number"],
+    required: [false, "Please provide a phone number"],
   },
   idCard: {
     type: String,
-    required: [true, "Please provide an ID card"],
+    required: [false, "Please provide an ID card"],
   },
   dob: {
     type: Date,
-    required: [true, "Please provide a date of birth"],
+    required: [false, "Please provide a date of birth"],
   },
   gender: {
     type: String,
     enum: ["male", "female"],
-    required: [true, "Please provide a gender"],
+    required: [false, "Please provide a gender"],
   },
   profilePicture: {
     type: String,
@@ -75,7 +75,7 @@ const UserProfileSchema = new mongoose.Schema({
 const CompanySchema = new mongoose.Schema({
   companyName: {
     type: String,
-    required: [true, "Please provide a company name"],
+    required: [false, "Please provide a company name"],
   },
   companyAddress: {
     type: String,

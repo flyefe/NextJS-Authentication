@@ -12,28 +12,7 @@ const ROUTE_OPTIONS = [
 ];
 
 // Define a type for the form state
-interface FormState {
-  originCountry?: string;
-  originCity?: string;
-  destinationCountry?: string;
-  destinationCity?: string;
-  routeType?: string;
-  scope?: string;
-  routeName?: string;
-  active?: boolean;
-  createdBy?: string;
-  updatedBy?: string;
-  expressRate: Record<string, number>;
-  optionRate: Record<string, number>;
-  shippingConfig: {
-    [key: string]: any;
-    availableOptions?: string[];
-    goodsCategory?: string[];
-    subCharge?: number;
-    vatPercent?: number;
-  };
-  activeRateTab?: string;
-}
+
 
 // Component for basic route information
 interface Country {
