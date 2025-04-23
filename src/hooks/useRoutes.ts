@@ -4,19 +4,27 @@ import axios from "axios";
 export interface Route {
   _id?: string;
   routeName?: string;
-  scope?: string;
-  routeType?: string | null;
-  category?: string;
+  scope?: "local" | "international";
+  routeType?: "intra-city" | "inter-city" | null;
+  category?: "import" | "export";
   originCountry?: string | { _id: string; name: string };
-  originCity?: string;
   destinationCountry?: string | { _id: string; name: string };
+  originCity?: string;
   destinationCity?: string;
-  shippingOptionConfig?: any;
+  originAddress?: string;
+  destinationAddress?: string;
+  shippingOptionConfig?: {
+    availableOptions?: {
+      expressRate?: any;
+      fastTrackRate?: any;
+      consoleRate?: any;
+      seaRate?: any;
+    };
+  };
   active?: boolean;
-  createdAt?: string;
-  updatedAt?: string;
   createdBy?: any;
   updatedBy?: any;
+  updatedAt?: string;
 }
 
 export function useRoutes() {
