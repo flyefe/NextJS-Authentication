@@ -32,58 +32,58 @@ export default function ShippingCalculator() {
     ? calculateAllShippingOptions({ route: selectedRoute, kg, volume, container })
     : [];
 
-  if (loading) return <div className="p-4">Loading routes...</div>;
-  if (error) return <div className="p-4 text-red-500">Error loading routes: {error}</div>;
+  if (loading) return <div className="p-4 text-gray-900">Loading routes...</div>;
+  if (error) return <div className="p-4 text-red-500 text-gray-900">Error loading routes: {error}</div>;
   return (
     <div className="max-w-xl mx-auto p-4 bg-white rounded shadow">
-      <h2 className="text-lg font-bold mb-2">Shipping Calculator</h2>
+      <h2 className="text-lg font-bold mb-2 text-gray-900">Shipping Calculator</h2>
       <div className="mb-2">
-        <label className="block font-semibold text-xs mb-1">Direction</label>
-        <select value={direction} onChange={e => { setDirection(e.target.value as any); setRouteId(""); setOption(""); }} className="w-full p-1 border rounded text-xs">
-          <option value="import">Import</option>
-          <option value="export">Export</option>
+        <label className="block font-semibold text-xs mb-1 text-gray-700">Direction</label>
+        <select value={direction} onChange={e => { setDirection(e.target.value as any); setRouteId(""); setOption(""); }} className="w-full p-1 border rounded text-xs text-gray-900 bg-white">
+          <option value="import" className="text-gray-900">Import</option>
+          <option value="export" className="text-gray-900">Export</option>
         </select>
       </div>
       <div className="mb-2">
-        <label className="block font-semibold text-xs mb-1">Route</label>
-        <select value={routeId} onChange={e => { setRouteId(e.target.value); setOption(""); }} className="w-full p-1 border rounded text-xs">
+        <label className="block font-semibold text-xs mb-1 text-gray-700">Route</label>
+        <select value={routeId} onChange={e => { setRouteId(e.target.value); setOption(""); }} className="w-full p-1 border rounded text-xs text-gray-900 bg-white">
           <option value="">Select Route</option>
           {filteredRoutes.map(r => <option key={r._id} value={r._id}>{r.routeName}</option>)}
         </select>
       </div>
       {selectedRoute && (
         <div className="mb-2">
-          <label className="block font-semibold text-xs mb-1">Shipping Option</label>
-          <select value={option} onChange={e => setOption(e.target.value)} className="w-full p-1 border rounded text-xs">
+          <label className="block font-semibold text-xs mb-1 text-gray-700">Shipping Option</label>
+          <select value={option} onChange={e => setOption(e.target.value)} className="w-full p-1 border rounded text-xs text-gray-900 bg-white">
             <option value="">Select Option</option>
             {availableOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
           </select>
         </div>
       )}
       <div className="mb-2">
-        <label className="block font-semibold text-xs mb-1">Weight (kg)</label>
-        <input type="number" value={kg} onChange={e => setKg(Number(e.target.value))} className="w-full p-1 border rounded text-xs" />
+        <label className="block font-semibold text-xs mb-1 text-gray-700">Weight (kg)</label>
+        <input type="number" value={kg} onChange={e => setKg(Number(e.target.value))} className="w-full p-1 border rounded text-xs text-gray-900 bg-white" />
       </div>
       <div className="mb-2">
-        <label className="block font-semibold text-xs mb-1">Volume (cbm)</label>
-        <input type="number" value={volume} onChange={e => setVolume(Number(e.target.value))} className="w-full p-1 border rounded text-xs" />
+        <label className="block font-semibold text-xs mb-1 text-gray-700">Volume (cbm)</label>
+        <input type="number" value={volume} onChange={e => setVolume(Number(e.target.value))} className="w-full p-1 border rounded text-xs text-gray-900 bg-white" />
       </div>
       <div className="mb-2">
-        <label className="block font-semibold text-xs mb-1">Container (optional)</label>
-        <select value={container || ""} onChange={e => setContainer(e.target.value || null)} className="w-full p-1 border rounded text-xs">
+        <label className="block font-semibold text-xs mb-1 text-gray-700">Container (optional)</label>
+        <select value={container || ""} onChange={e => setContainer(e.target.value || null)} className="w-full p-1 border rounded text-xs text-gray-900 bg-white">
           <option value="">None</option>
-          <option value="FCL">FCL</option>
-          <option value="LCL">LCL</option>
+          <option value="FCL" className="text-gray-900">FCL</option>
+          <option value="LCL" className="text-gray-900">LCL</option>
         </select>
       </div>
       {selectedRoute && (
         <div className="mb-4">
-          <label className="block font-semibold text-xs mb-1">Quotes</label>
+          <label className="block font-semibold text-xs mb-1 text-gray-700">Quotes</label>
           <div className="space-y-2">
             {estimates.map(est => (
               <div key={est.option} className="border p-2 rounded bg-gray-50 flex flex-col md:flex-row md:items-center md:justify-between">
-                <span className="font-semibold">{est.option}</span>
-                <span>Cost: <span className="font-mono">${est.cost.toFixed(2)}</span></span>
+                <span className="font-semibold text-gray-900">{est.option}</span>
+                <span>Cost: <span className="font-mono text-gray-900">${est.amount.toFixed(2)}</span></span>
                 <span>ETA: {est.eta} days</span>
                 <button className="bg-blue-600 text-white px-2 py-1 rounded mt-2 md:mt-0" onClick={() => alert(`Proceed to booking for ${est.option}`)}>Book</button>
               </div>

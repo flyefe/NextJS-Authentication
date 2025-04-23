@@ -1,5 +1,3 @@
-import { Shipment } from './models'; // Adjust path as needed
-
 // Define types for the function parameters
 interface Route {
   origin_country: string;
@@ -11,14 +9,14 @@ async function calculateExpressShippingRate(
   option: string,
   weight: number,
   goodsCategory: string
-): Promise<number> {
+): Promise<number> { //promise<number> returns a promise that resolves to a number
   // Check if it's an export or import scenario
   const isExport = route.origin_country === 'Nigeria';
   const isImport = route.destination_country === 'Nigeria';
   const country_key = isExport ? route.destination_country : route.origin_country;
 
-  // Fetch data from the database based on country and option
-  const countryRates = await Shipment.findOne({ country: country_key });
+  // Fetch data from route
+  const { data: countryRates } = useRoute('shipment.find', { country: country_key });
 
   // Function to get the rate for a specific weight range
   const getRatesUpTo5Kg = (country: string, option: string, category: string) => {
@@ -97,3 +95,7 @@ async function calculateExpressShippingRate(
 
   return total;
 }
+function useRoute(arg0: string, arg1: { country: string; }): { data: any; } {
+  throw new Error("Function not implemented.");
+}
+

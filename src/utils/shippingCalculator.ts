@@ -38,5 +38,9 @@ export function calculateAllShippingOptions({ route, kg, volume, container }: Sh
     // ETA: Not defined in model, set to 0 or add logic if you add eta fields
     const eta = 0;
     return { option: optionLabels[option], amount, eta };
+
+    if (option === "expressRate") {
+      amount = calculateExpressShippingRate(route, option, kg, goodsCategory);
+    } 
   });
 }
