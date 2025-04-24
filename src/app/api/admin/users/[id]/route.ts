@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 import { connect } from '@/dbConfig/dbConfig';
 import User from '@/models/userModel';
+import Country from '@/models/countryModel';
 
 // This function is used to get the admin user
 async function getAdminUser(request: NextRequest) {

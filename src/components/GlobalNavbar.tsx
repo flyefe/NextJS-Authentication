@@ -19,7 +19,7 @@ export default function GlobalNavbar() {
       </div>
       {/* Desktop Nav */}
       <div className="hidden sm:flex items-center space-x-6 flex-1 ml-4">
-        <Link href="/calculator" className={`font-medium hover:text-yellow-300 transition text-white ${pathname === "/calculator" ? "underline underline-offset-4 decoration-yellow-300" : ""}`}>Shipping Calculator</Link>
+        <Link href="/shipping-calculator" className={`font-medium hover:text-yellow-300 transition text-white ${pathname === "/shipping-calculator" ? "underline underline-offset-4 decoration-yellow-300" : ""}`}>Shipping Calculator</Link>
         {user?.isAdmin && (
           <Link href="/admin/routes" className={`font-medium hover:text-yellow-300 transition text-white ${pathname.startsWith("/admin/routes") ? "underline underline-offset-4 decoration-yellow-300" : ""}`}>Admin</Link>
         )}
@@ -43,7 +43,7 @@ export default function GlobalNavbar() {
           className="sm:hidden absolute top-full right-0 w-full bg-gradient-to-b from-blue-800 via-blue-900 to-blue-950 border-b border-yellow-300 z-40 flex flex-col items-start px-4 py-2 gap-2 shadow animate-fadein"
           role="menu"
         >
-          <Link href="/calculator" className={`block w-full py-2 px-2 rounded font-medium hover:bg-blue-50 ${pathname === "/calculator" ? "text-blue-700" : "text-gray-700"}`} onClick={() => setMobileMenuOpen(false)}>
+          <Link href="/shipping-calculator" className={`block w-full py-2 px-2 rounded font-medium hover:bg-blue-50 ${pathname === "/calculator" ? "text-blue-700" : "text-gray-700"}`} onClick={() => setMobileMenuOpen(false)}>
             Shipping Calculator
           </Link>
           {user?.isAdmin && (

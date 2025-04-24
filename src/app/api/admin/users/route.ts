@@ -5,6 +5,7 @@ import { connect } from "@/dbConfig/dbConfig";
 import Route from "@/models/routeModel";
 import User from "@/models/userModel";
 import jwt from "jsonwebtoken";
+import Country from "@/models/countryModel";
 
 // This function is used to connect to the database.  
 connect();

@@ -22,6 +22,7 @@ export interface Route {
     };
   };
   exchangeRate?: number; // <-- Added this line
+  currency?: string;
   active?: boolean;
   createdBy?: any;
   updatedBy?: any;
