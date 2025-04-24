@@ -60,16 +60,48 @@ export default function ShippingCalculator() {
   if (showEstimates && selectedRoute) {
     // 5. When user clicks 'Calculate', build calculation parameters based on mode
     if (shippingMode === "air") {
-      // For air: pass kg, volume=0, container=null
       const safeKg = kg > 0 ? kg : 0;
+      // Log the parameters being sent for air
+      console.log("Calling calculateAllShippingOptions for AIR with:", {
+        route: selectedRoute,
+        kg: safeKg,
+        volume: 0,
+        container: null
+      });
+      // For air: pass kg, volume=0, container=null
       estimates = calculateAllShippingOptions({ route: selectedRoute, kg: safeKg, volume: 0, container: null }).filter(e => e.option === "Express" || e.option === "Fast Track" || e.option === "Console");
     } else if (shippingMode === "sea") {
+      // Log the parameters being sent for sea
+      console.log("Calling calculateAllShippingOptions for SEA with:", {
+        route: selectedRoute,
+        kg: 0,
+        volume: container === "LCL" ? volume : 0,
+        container: container || null
+      });
       // For sea: if LCL, pass volume and container; if FCL, pass container only
       if (container === "LCL") {
+        console.log("Calling calculateAllShippingOptions for SEA (LCL) with:", {
+          route: selectedRoute,
+          kg: 0,
+          volume,
+          container
+        });
         estimates = calculateAllShippingOptions({ route: selectedRoute, kg: 0, volume, container });
       } else if (container) {
+        console.log("Calling calculateAllShippingOptions for SEA (FCL) with:", {
+          route: selectedRoute,
+          kg: 0,
+          volume: 0,
+          container
+        });
         estimates = calculateAllShippingOptions({ route: selectedRoute, kg: 0, volume: 0, container });
       } else {
+        console.log("Calling calculateAllShippingOptions for SEA (no container) with:", {
+          route: selectedRoute,
+          kg: 0,
+          volume: 0,
+          container: null
+        });
         estimates = calculateAllShippingOptions({ route: selectedRoute, kg: 0, volume: 0, container: null });
       }
       // Only show sea options

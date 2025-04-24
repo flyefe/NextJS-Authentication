@@ -21,6 +21,7 @@ import { calculateSeaShippingRate } from "./calculateSeaShipping";
 
 // Main utility function to calculate all relevant shipping options for a route
 export function calculateAllShippingOptions({ route, kg, volume, container, containers }: ShippingCalculationParams): ShippingEstimate[] {
+  console.log("[calculateAllShippingOptions] received:", { route, kg, volume, container, containers });
   if (!route) return [];
   // Extract available options from shippingOptionConfig
   // Define the possible option keys
