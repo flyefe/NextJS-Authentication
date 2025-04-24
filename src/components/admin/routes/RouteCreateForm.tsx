@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import OptionRateSection from './OptionRateSection';
 import ShippingConfigSection from '../ShippingConfigSection';
+import Country from '@/models/countryModel';
 
 const ROUTE_OPTIONS = [
   { key: 'seaCBM', label: 'Sea CBM', component: OptionRateSection },
@@ -46,48 +47,136 @@ const BasicRouteInfoSection = ({ form, setForm, countries, users }: {
     <div className="mb-4">
       <h3 className="text-lg font-bold mb-2">Basic Route Information</h3>
       <div className="space-y-2 grid grid-cols-1 md:grid-cols-2 gap-4">
-
-      {/* Rate Configuration for Route Options */}
-      <div className="col-span-2">
-        <h3 className="text-lg font-bold mb-2 mt-4">Configure Rates for Route Options</h3>
-        <div className="mb-4">
-          <div className="flex space-x-2 mb-2">
-            {ROUTE_OPTIONS.map((opt, idx) => (
-              <button
-                key={opt.key}
-                type="button"
-                className={`px-3 py-1 rounded ${form.activeRateTab === opt.key ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-900'}`}
-                onClick={() => setForm(f => ({ ...f, activeRateTab: opt.key }))}
-              >
-                {opt.label}
-              </button>
+        {/* Exchange Rate and Currency */}
+        <div>
+          <label className="block text-gray-900">Exchange Rate</label>
+          <input
+            type="number"
+            name="exchangeRate"
+            value={form.exchangeRate ?? 1}
+            onChange={handleChange}
+            className="w-full border rounded px-3 py-2 bg-white text-gray-900"
+            step="any"
+            min="0"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-gray-900">Currency</label>
+          <input
+            type="text"
+            name="currency"
+            value={form.currency ?? 'USD'}
+            onChange={handleChange}
+            className="w-full border rounded px-3 py-2 bg-white text-gray-900"
+            required
+          />
+        </div>
+        {/* Origin and Destination Fields */}
+        <div>
+        <label className="block text-gray-900">Currency</label>
+          <input
+            type="text"
+            name="currency"
+            value={form.currency ?? 'USD'}
+            onChange={handleChange}
+            className="w-full border rounded px-3 py-2 bg-white text-gray-900"
+            required
+          />
+        </div>
+        <div> 
+          <label className="block text-gray-900">Origin Country</label>
+          <select
+            name="originCountry"
+            value={form.originCountry || ''}
+            onChange={handleChange}
+            className="w-full border rounded px-3 py-2 bg-white text-gray-900"
+            required
+          >
+            <option value="">Select Country</option>
+            {countries.map((c) => (
+              <option key={c._id} value={c._id}>{c.name}</option>
             ))}
-          </div>
-          <div className="border rounded p-3 bg-gray-50">
-            {ROUTE_OPTIONS.map(opt => {
-              if (form.activeRateTab !== opt.key) return null;
-              const RateComponent = opt.component;
-              return (
-                <RateComponent
+          </select>
+        </div>
+        <div>
+          <label className="block text-gray-900">Origin City</label>
+          <input
+            type="text"
+            name="originCity"
+            value={form.originCity || ''}
+            onChange={handleChange}
+            className="w-full border rounded px-3 py-2 bg-white text-gray-900"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-gray-900">Destination Country</label>
+          <select
+            name="destinationCountry"
+            value={form.destinationCountry || ''}
+            onChange={handleChange}
+            className="w-full border rounded px-3 py-2 bg-white text-gray-900"
+            required
+          >
+            <option value="">Select Country</option>
+            {countries.map((c) => (
+              <option key={c._id} value={c._id}>{c.name}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="block text-gray-900">Destination City</label>
+          <input
+            type="text"
+            name="destinationCity"
+            value={form.destinationCity || ''}
+            onChange={handleChange}
+            className="w-full border rounded px-3 py-2 bg-white text-gray-900"
+            required
+          />
+        </div>
+        {/* Rate Configuration for Route Options */}
+        <div className="col-span-2">
+          <h3 className="text-lg font-bold mb-2 mt-4">Configure Rates for Route Options</h3>
+          <div className="mb-4">
+            <div className="flex space-x-2 mb-2">
+              {ROUTE_OPTIONS.map((opt, idx) => (
+                <button
                   key={opt.key}
-                  form={form.shippingConfig?.availableOptions?.[opt.key] || {}}
-                  setForm={(rateVals) => setForm((f) => ({
-                    ...f,
-                    shippingConfig: {
-                      ...f.shippingConfig,
-                      availableOptions: {
-                        ...f.shippingConfig?.availableOptions,
-                        [opt.key]: rateVals,
+                  type="button"
+                  className={`px-3 py-1 rounded ${form.activeRateTab === opt.key ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-900'}`}
+                  onClick={() => setForm(f => ({ ...f, activeRateTab: opt.key }))}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+            <div className="border rounded p-3 bg-gray-50">
+              {ROUTE_OPTIONS.map(opt => {
+                if (form.activeRateTab !== opt.key) return null;
+                const RateComponent = opt.component;
+                return (
+                  <RateComponent
+                    key={opt.key}
+                    form={form.shippingConfig?.availableOptions?.[opt.key] || {}}
+                    setForm={(rateVals) => setForm((f) => ({
+                      ...f,
+                      shippingConfig: {
+                        ...f.shippingConfig,
+                        availableOptions: {
+                          ...f.shippingConfig?.availableOptions,
+                          [opt.key]: rateVals,
+                        },
                       },
-                    },
-                  }))}
-                  rateType={opt.key as 'seaRate' | 'fastTrackRate' | 'consoleRate' | 'expressRate'}
-                />
-              );
-            })}
+                    }))}
+                    rateType={opt.key as 'seaRate' | 'fastTrackRate' | 'consoleRate' | 'expressRate'}
+                  />
+                );
+              })}
+            </div>
           </div>
         </div>
-      </div>
         <div>
           <label className="block text-gray-900">Origin Country</label>
           <select
@@ -247,19 +336,15 @@ interface RouteCreateFormProps {
 }
 
 const RouteCreateForm: React.FC<RouteCreateFormProps> = ({ countries, users, initialValues, onSubmit }) => {
-  const [form, setForm] = useState<FormState>(
-    initialValues ? { ...{
-      expressRate: {},
-      optionRate: {},
-      shippingConfig: {},
-      active: true,
-    }, ...initialValues } : {
-      expressRate: {},
-      optionRate: {},
-      shippingConfig: {},
-      active: true,
-    }
-  );
+  const [form, setForm] = useState<FormState>({
+    expressRate: {},
+    optionRate: {},
+    shippingConfig: {},
+    active: true,
+    exchangeRate: 1,
+    currency: 'USD',
+    ...(initialValues || {}),
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

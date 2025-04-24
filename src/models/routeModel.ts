@@ -18,6 +18,7 @@ const ExpressRateSchema = new mongoose.Schema({
   subCharge: { type: Number, default: 0 },
   vatPercent: { type: Number, default: 0 },
   goodsCategory: { type: [String], default: ["Has Battery", "Chemical", "Food"] },
+  eta: { type: Number, default: 0 },
   active: { type: Boolean, default: false },
 }, { _id: false });
 
@@ -34,7 +35,8 @@ const airRateSchema = new mongoose.Schema({
   specialGoodsRate: { type: Number, default: 0 },
   hasChemicalRate: { type: Number, default: 0 },
   customClearanceRateAir: { type: Number, default: 0 },
-  goodsCategory: { type: [String], default: ["Has Battery", "Chemical", "Food"] },
+  goodsCategory: { type: [String], default: ["Has Battery", "Chemical", "Contain Food", "Has No Battery", "Special Goods"] },
+  eta: { type: Number, default: 0 },
   active: { type: Boolean, default: false },
 }, { _id: false });
 
@@ -49,6 +51,7 @@ const SeaRateSchema = new mongoose.Schema({
   customClearanceCost: { type: Number, default: 0 },
   documentationCost: { type: Number, default: 0 },
   goodsCategory: { type: [String], default: ["Has Battery", "Chemical", "Food"] },
+  eta: { type: Number, default: 0 },
   active: { type: Boolean, default: false },
 }, { _id: false });
 
@@ -68,6 +71,8 @@ const RouteSchema = new mongoose.Schema({
   scope: { type: String, enum: ["local", "international"], default: "international" },
   routeType: { type: String, enum: ["intra-city", "inter-city", null] },
   category: { type: String, enum: ["import", "export"], required: false },
+  exchangeRate: { type: Number, default: 1 },
+  currency: { type: String, default: "USD" },
 
   // Country and City IDs
   originCountry: { type: mongoose.Schema.Types.ObjectId, ref: 'Country', required: false },

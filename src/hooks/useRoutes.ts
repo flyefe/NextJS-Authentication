@@ -21,6 +21,7 @@ export interface Route {
       seaRate?: any;
     };
   };
+  exchangeRate?: number; // <-- Added this line
   active?: boolean;
   createdBy?: any;
   updatedBy?: any;

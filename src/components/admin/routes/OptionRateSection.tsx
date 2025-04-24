@@ -98,6 +98,25 @@ const OptionRateSection: React.FC<OptionRateSectionProps> = ({ form, setForm, ra
               className="w-full border rounded px-3 py-2 text-gray-900"
             />
           </div>
+          {/* ETA input for this rate option */}
+          <div className="mt-2">
+            <label className="block text-gray-900">ETA (days)</label>
+            <span className="block text-xs text-gray-500 mb-1">Set the estimated delivery time for this shipping option.</span>
+            <input
+              type="number"
+              name="eta"
+              value={form.eta ?? 0}
+              onChange={e => {
+                const eta = Number(e.target.value);
+                setForm({
+                  ...form,
+                  eta,
+                });
+              }}
+              className="w-full border rounded px-3 py-2 bg-white text-gray-900"
+              min="0"
+            />
+          </div>
           <div className="flex items-center mt-2">
             <input
               type="checkbox"
@@ -220,6 +239,25 @@ const OptionRateSection: React.FC<OptionRateSectionProps> = ({ form, setForm, ra
               className="w-full border rounded px-3 py-2 text-gray-900"
             />
           </div>
+          {/* ETA input for this rate option */}
+          <div className="mt-2">
+            <label className="block text-gray-900">ETA (days)</label>
+            <span className="block text-xs text-gray-500 mb-1">Set the estimated delivery time for this shipping option.</span>
+            <input
+              type="number"
+              name="eta"
+              value={form.eta ?? 0}
+              onChange={e => {
+                const eta = Number(e.target.value);
+                setForm({
+                  ...form,
+                  eta,
+                });
+              }}
+              className="w-full border rounded px-3 py-2 bg-white text-gray-900"
+              min="0"
+            />
+          </div>
           <div className="flex items-center mt-2">
             <input
               type="checkbox"
@@ -328,6 +366,25 @@ const OptionRateSection: React.FC<OptionRateSectionProps> = ({ form, setForm, ra
               value={form.customClearanceRatePerCBM || ''}
               onChange={handleChange}
               className="w-full border rounded px-3 py-2 text-gray-900"
+            />
+          </div>
+          {/* ETA input for this rate option */}
+          <div className="mt-2">
+            <label className="block text-gray-900">ETA (days)</label>
+            <span className="block text-xs text-gray-500 mb-1">Set the estimated delivery time for this shipping option.</span>
+            <input
+              type="number"
+              name="eta"
+              value={form.eta ?? 0}
+              onChange={e => {
+                const eta = Number(e.target.value);
+                setForm({
+                  ...form,
+                  eta,
+                });
+              }}
+              className="w-full border rounded px-3 py-2 bg-white text-gray-900"
+              min="0"
             />
           </div>
           <div className="flex items-center mt-2">

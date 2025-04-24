@@ -36,6 +36,8 @@ export default function CreateRoutePage() {
     originCity: "",
     destinationCountry: "",
     destinationCity: "",
+    currency: 'USD',
+    exchangeRate: 1,
     shippingOptionConfig: {
       availableOptions: {
         expressRate: {
@@ -53,6 +55,7 @@ export default function CreateRoutePage() {
           subCharge: 0,
           vatPercent: 0,
           goodsCategory: [],
+          eta: 0,
           active: true,
         },
         fastTrackRate: {
@@ -68,6 +71,7 @@ export default function CreateRoutePage() {
           hasChemicalRate: 0,
           customClearanceRateAir: 0,
           goodsCategory: [],
+          eta: 0,
           active: true,
         },
         consoleRate: {
@@ -83,6 +87,7 @@ export default function CreateRoutePage() {
           hasChemicalRate: 0,
           customClearanceRateAir: 0,
           goodsCategory: [],
+          eta: 0,
           active: true,
         },
         seaRate: {
@@ -95,6 +100,7 @@ export default function CreateRoutePage() {
           customClearanceCost: 0,
           documentationCost: 0,
           goodsCategory: [],
+          eta: 0,
           active: true,
         },
       },
@@ -173,6 +179,7 @@ export default function CreateRoutePage() {
       const {
         routeName, scope, routeType, category,
         originCountry, originCity, destinationCountry, destinationCity,
+        currency, exchangeRate,
         shippingOptionConfig,
         active
       } = form;
@@ -193,6 +200,8 @@ export default function CreateRoutePage() {
             seaRate: shippingOptionConfig.availableOptions.seaRate,
           }
         },
+        currency,
+        exchangeRate,
         active
       };
 
@@ -214,6 +223,16 @@ export default function CreateRoutePage() {
     <div className="max-w-3xl mx-auto bg-white p-8 rounded shadow mt-8">
       <h1 className="text-2xl font-bold mb-6 text-gray-900">Create New Route</h1>
       <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <label className="block text-gray-900">Exchange Rate</label>
+            <input type="number" name="exchangeRate" value={form.exchangeRate} onChange={handleChange} className="w-full border rounded px-3 py-2 bg-white text-gray-900" step="any" min="1" />
+          </div>
+          <div className="space-y-2">
+            <label className="block text-gray-900">Currency</label>
+            <input type="text" name="currency" value={form.currency} onChange={handleChange} className="w-full border rounded px-3 py-2 bg-white text-gray-900" />
+          </div>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-gray-900">Route Name</label>

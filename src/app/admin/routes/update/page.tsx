@@ -31,6 +31,8 @@ export default function UpdateRoutePage() {
     originCity: "",
     destinationCountry: "",
     destinationCity: "",
+    currency: 'USD',
+    exchangeRate: 1,
     shippingOptionConfig: {
       availableOptions: {
         expressRate: {},
@@ -80,6 +82,8 @@ export default function UpdateRoutePage() {
             originCity: toStringOrEmpty(raw.originCity),
             destinationCity: toStringOrEmpty(raw.destinationCity),
             scope: toStringOrEmpty(raw.scope),
+            currency: toStringOrEmpty(raw.currency),
+            exchangeRate: toNumberOrZero(raw.exchangeRate),
             // Ensure all nested rate configs exist and numbers are numbers
             shippingOptionConfig: {
               availableOptions: {
@@ -165,7 +169,9 @@ export default function UpdateRoutePage() {
         destinationCountry,
         destinationCity,
         shippingOptionConfig,
-        active
+        active,
+        currency,
+        exchangeRate
       } = form;
 
       const payload = {
@@ -185,6 +191,8 @@ export default function UpdateRoutePage() {
             seaRate: shippingOptionConfig.availableOptions.seaRate,
           }
         },
+        currency,
+        exchangeRate,
         active
       };
 
@@ -205,9 +213,20 @@ export default function UpdateRoutePage() {
 
   return (
     <div className="max-w-4xl mx-auto bg-gray-50 p-8 rounded shadow mt-8">
+      
       <h1 className="text-2xl font-bold mb-4 text-gray-900">Update Route</h1>
 
       <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <label className="block text-gray-900">Exchange Rate</label>
+            <input type="number" name="exchangeRate" value={form.exchangeRate} onChange={handleChange} className="w-full border rounded px-3 py-2 bg-white text-gray-900" step="any" min="1" />
+          </div>
+          <div className="space-y-2">
+            <label className="block text-gray-900">Currency</label>
+            <input type="text" name="currency" value={form.currency} onChange={handleChange} className="w-full border rounded px-3 py-2 bg-white text-gray-900" />
+          </div>
+        </div>
         {/* Basic Info */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>

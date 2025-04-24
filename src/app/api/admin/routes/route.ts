@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { connect } from "@/dbConfig/dbConfig";
 import Route from "@/models/routeModel";
 import User from "@/models/userModel";
+import Country from "@/models/countryModel";
 import jwt from "jsonwebtoken";
 
 // This function is used to connect to the database.  
@@ -56,6 +57,20 @@ export async function POST(request: NextRequest) {
   // Only require routeName for all routes
   if (!body.routeName) {
     return NextResponse.json({ error: 'Route name is required' }, { status: 400 });
+  }
+
+  // Set defaults for new fields if not provided
+  if (!body.exchangeRate) body.exchangeRate = 1;
+  if (!body.currency) body.currency = 'USD';
+
+  // Ensure eta is a number for each rate option if present
+  if (body.shippingOptionConfig && body.shippingOptionConfig.availableOptions) {
+    for (const optionKey of Object.keys(body.shippingOptionConfig.availableOptions)) {
+      const opt = body.shippingOptionConfig.availableOptions[optionKey];
+      if (opt && typeof opt.eta !== 'undefined') {
+        opt.eta = Number(opt.eta) || 0;
+      }
+    }
   }
 
   // For international routes, optionally validate countries

@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { connect } from "@/dbConfig/dbConfig";
 import Route from "@/models/routeModel";
 import User from "@/models/userModel";
+import Country from "@/models/countryModel";
 import jwt from "jsonwebtoken";
 
 connect();

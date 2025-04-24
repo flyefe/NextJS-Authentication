@@ -11,10 +11,16 @@ export interface ShippingCalculationParams {
   kg: number;
   volume: number;
   container: string | null;
+  containers?: string[]; // Optional: for sea shipping multiple containers
 }
 
+import { calculateExpressShippingRate } from "./calculateExpressShipping";
+import { calculateFastTrackShippingRate } from "./calculateFastTrack";
+import { calculateConsoleShippingRate } from "./calculateConsoleShipping";
+import { calculateSeaShippingRate } from "./calculateSeaShipping";
+
 // Main utility function to calculate all relevant shipping options for a route
-export function calculateAllShippingOptions({ route, kg, volume, container }: ShippingCalculationParams): ShippingEstimate[] {
+export function calculateAllShippingOptions({ route, kg, volume, container, containers }: ShippingCalculationParams): ShippingEstimate[] {
   if (!route) return [];
   // Extract available options from shippingOptionConfig
   // Define the possible option keys
@@ -30,17 +36,25 @@ export function calculateAllShippingOptions({ route, kg, volume, container }: Sh
   };
   return options.map(option => {
     let amount = 0;
-    // Example logic (replace with real per-option/route logic)
-    if (option === "expressRate") amount = kg * 15 + (volume * 10);
-    else if (option === "seaRate") amount = container === "FCL" ? 2000 : volume * 50;
-    else if (option === "consoleRate") amount = kg * 12 + (volume * 8);
-    else if (option === "fastTrackRate") amount = kg * 20 + (volume * 20);
-    // ETA: Not defined in model, set to 0 or add logic if you add eta fields
-    const eta = 0;
-    return { option: optionLabels[option], amount, eta };
-
     if (option === "expressRate") {
-      amount = calculateExpressShippingRate(route, option, kg, goodsCategory);
-    } 
+      amount = calculateExpressShippingRate(route, kg) ?? 0;
+    } else if (option === "fastTrackRate") {
+      amount = calculateFastTrackShippingRate(route, kg) ?? 0;
+    } else if (option === "consoleRate") {
+      amount = calculateConsoleShippingRate(route, kg) ?? 0;
+    } else if (option === "seaRate") {
+      // Prefer containers array if provided, fallback to single container
+      if (Array.isArray(containers) && containers.length > 0) {
+        amount = calculateSeaShippingRate(route, volume, containers) ?? 0;
+      } else if (container) {
+        amount = calculateSeaShippingRate(route, volume, [container]) ?? 0;
+      } else {
+        amount = calculateSeaShippingRate(route, volume, []) ?? 0;
+      }
+    }
+    // Get eta from the corresponding config
+    const config = route.shippingOptionConfig?.availableOptions?.[option];
+    const eta = (config && typeof config.eta === "number") ? config.eta : 0;
+    return { option: optionLabels[option], amount, eta };
   });
 }
