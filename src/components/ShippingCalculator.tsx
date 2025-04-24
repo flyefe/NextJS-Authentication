@@ -1,27 +1,45 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRoutes, Route } from "@/hooks/useRoutes";
-import { calculateAllShippingOptions, ShippingEstimate } from "@/utils/shippingCalculator";
+import { calculateAllShippingOptions, ShippingEstimate } from "@/lib/utils/shippingCalculator";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
-export default function ShippingCalculator() {
-  const [direction, setDirection] = useState<"import" | "export">("import");
-  const [routeId, setRouteId] = useState("");
-  const [shippingMode, setShippingMode] = useState<"air" | "sea" | "">("");
-  const [kg, setKg] = useState<number>(0);
-  const [container, setContainer] = useState<string>("");
-  const [volume, setVolume] = useState<number>(0);
+// ShippingCalculator UI component
+// Workflow:
+// 1. User selects shipment direction (import/export)
+// 2. User selects a route (filtered by direction)
+// 3. User selects shipping mode (Air/Sea)
+// 4. User enters weight (kg) for Air, or selects container and enters volume (if LCL) for Sea
+// 5. When 'Calculate Shipping Cost' is clicked, input values are bundled as parameters and sent to the calculation utility (calculateAllShippingOptions)
+// 6. The returned estimates are displayed to the user
 
+export default function ShippingCalculator() {
+  // --- State for user input ---
+  // Step 1: Shipment direction (import/export)
+  const [direction, setDirection] = useState<"import" | "export">("import");
+  // Step 2: Route selection
+  const [routeId, setRouteId] = useState("");
+  // Step 3: Shipping mode (Air/Sea)
+  const [shippingMode, setShippingMode] = useState<"air" | "sea" | "">("");
+  // Step 4: Weight (kg) for Air, or container and volume (if LCL) for Sea
+  const [kg, setKg] = useState<number>(0);
+  const [container, setContainer] = useState<string>(""); // Container type for Sea
+  const [volume, setVolume] = useState<number>(0); // Volume (CBM) for LCL Sea
+
+  // --- Get available routes and filter by direction ---
   const { routes, loading, error } = useRoutes();
+  // Filter routes by selected direction
   const filteredRoutes = routes.filter(r => r.category === direction);
+  // Get the selected route
   const selectedRoute = filteredRoutes.find(r => r._id === routeId);
 
-  // Determine available containers for sea shipping
+  // --- Determine available containers for sea shipping based on route config ---
+  // Default available containers
   let availableContainers: string[] = ["LCL", "20ft", "40ft", "40ftHighCube", "45ftHighCube"];
-  // Only show containers that are in the config for the selected route
+  // If selected route has sea rate config, filter containers accordingly
   if (selectedRoute && selectedRoute.shippingOptionConfig?.availableOptions?.seaRate) {
     const seaConfig = selectedRoute.shippingOptionConfig.availableOptions.seaRate;
     availableContainers = [
@@ -33,13 +51,20 @@ export default function ShippingCalculator() {
     ];
   }
 
-  // Calculate estimates using the utility, but filter for air/sea options as needed
+  // --- Calculation trigger and logic ---
+  // showEstimates: controls when to display results (after button click)
+  const [showEstimates, setShowEstimates] = useState(false);
+  // Estimates array to store calculation results
   let estimates: ShippingEstimate[] = [];
-  if (selectedRoute) {
+  // Perform calculation when user clicks 'Calculate' and selected route is available
+  if (showEstimates && selectedRoute) {
+    // 5. When user clicks 'Calculate', build calculation parameters based on mode
     if (shippingMode === "air") {
-      estimates = calculateAllShippingOptions({ route: selectedRoute, kg, volume: 0, container: null }).filter(e => e.option === "Express" || e.option === "Fast Track" || e.option === "Console");
+      // For air: pass kg, volume=0, container=null
+      const safeKg = kg > 0 ? kg : 0;
+      estimates = calculateAllShippingOptions({ route: selectedRoute, kg: safeKg, volume: 0, container: null }).filter(e => e.option === "Express" || e.option === "Fast Track" || e.option === "Console");
     } else if (shippingMode === "sea") {
-      // For LCL, pass volume; for FCL, pass container
+      // For sea: if LCL, pass volume and container; if FCL, pass container only
       if (container === "LCL") {
         estimates = calculateAllShippingOptions({ route: selectedRoute, kg: 0, volume, container });
       } else if (container) {
@@ -47,16 +72,19 @@ export default function ShippingCalculator() {
       } else {
         estimates = calculateAllShippingOptions({ route: selectedRoute, kg: 0, volume: 0, container: null });
       }
+      // Only show sea options
       estimates = estimates.filter(e => e.option === "Sea");
     }
   }
 
+  // --- Loading and error states ---
   if (loading) return <div className="p-4 text-gray-900">Loading routes...</div>;
   if (error) return <div className="p-4 text-red-500 text-gray-900">Error loading routes: {error}</div>;
 
-  // Use the first estimate as the selected one for details (or undefined if none)
+  // --- Use the first estimate as the selected one for details (or undefined if none) ---
   const selectedEstimate = estimates[0];
 
+  // --- UI Rendering ---
   return (
     <div className="min-h-screen bg-gray-100 py-8">
       <h1 className="text-2xl font-bold mb-8 text-gray-900 ml-8">Shipping Cost Calculator</h1>
@@ -68,7 +96,7 @@ export default function ShippingCalculator() {
           </CardHeader>
           {/* Step 1: Direction */}
           <div className="flex gap-2 mb-2">
-            <RadioGroup value={direction} onValueChange={val => { setDirection(val as any); setRouteId(""); setShippingMode(""); setKg(0); setContainer(""); setVolume(0); }} className="flex gap-2">
+            <RadioGroup value={direction} onValueChange={val => { setDirection(val as any); setRouteId(""); setShippingMode(""); setKg(0); setContainer(""); setVolume(0); setShowEstimates(false); }} className="flex gap-2">
               <div className="flex items-center gap-1 text-gray-900">
                 <RadioGroupItem value="import" id="import" />
                 <label htmlFor="import" className="text-sm text-gray-900">Import</label>
@@ -82,7 +110,7 @@ export default function ShippingCalculator() {
           {/* Step 2: Route select */}
           <div className="mb-2">
             <label className="block text-sm mb-1 text-gray-900">Route</label>
-            <Select value={routeId} onValueChange={val => { setRouteId(val); setShippingMode(""); setKg(0); setContainer(""); setVolume(0); }}>
+            <Select value={routeId} onValueChange={val => { setRouteId(val); setShippingMode(""); setKg(0); setContainer(""); setVolume(0); setShowEstimates(false); }}>
               <SelectTrigger className="text-gray-900" >
                 <SelectValue placeholder="Select Route" className="text-gray-900" />
               </SelectTrigger>
@@ -97,7 +125,7 @@ export default function ShippingCalculator() {
           {selectedRoute && (
             <div className="mb-2">
               <label className="block text-sm mb-1 text-gray-900">Shipping Mode</label>
-              <RadioGroup value={shippingMode} onValueChange={val => { setShippingMode(val as any); setKg(0); setContainer(""); setVolume(0); }} className="flex gap-4">
+              <RadioGroup value={shippingMode} onValueChange={val => { setShippingMode(val as any); setKg(0); setContainer(""); setVolume(0); setShowEstimates(false); }} className="flex gap-4">
                 <div className="flex items-center gap-1 text-gray-900">
                   <RadioGroupItem value="air" id="air" />
                   <label htmlFor="air" className="text-sm text-gray-900">Air</label>
@@ -113,14 +141,18 @@ export default function ShippingCalculator() {
           {selectedRoute && shippingMode === "air" && (
             <div className="mb-2">
               <label className="block text-sm mb-1 text-gray-900">Weight (kg)</label>
-              <Input className="text-gray-900 placeholder:text-gray-900" type="number" min={0} value={kg} onChange={e => setKg(Number(e.target.value))} />
+              <Input className="text-gray-900 placeholder:text-gray-900" type="number" min={0} value={kg} onChange={e => {
+                const v = Number(e.target.value);
+                setKg(isNaN(v) || v < 0 ? 0 : v);
+                setShowEstimates(false);
+              }} />
             </div>
           )}
           {selectedRoute && shippingMode === "sea" && (
             <>
               <div className="mb-2">
                 <label className="block text-sm mb-1 text-gray-900">Container Type</label>
-                <Select value={container} onValueChange={val => { setContainer(val); setVolume(0); }}>
+                <Select value={container} onValueChange={val => { setContainer(val); setVolume(0); setShowEstimates(false); }}>
                   <SelectTrigger className="text-gray-900" >
                     <SelectValue placeholder="Select Container" className="text-gray-900" />
                   </SelectTrigger>
@@ -134,12 +166,30 @@ export default function ShippingCalculator() {
               {container === "LCL" && (
                 <div className="mb-2">
                   <label className="block text-sm mb-1 text-gray-900">Volume (CBM)</label>
-                  <Input className="text-gray-900 placeholder:text-gray-900" type="number" min={0} value={volume} onChange={e => setVolume(Number(e.target.value))} />
+                  <Input className="text-gray-900 placeholder:text-gray-900" type="number" min={0} value={volume} onChange={e => {
+                    const v = Number(e.target.value);
+                    setVolume(isNaN(v) || v < 0 ? 0 : v);
+                    setShowEstimates(false);
+                  }} />
                 </div>
               )}
             </>
           )}
-          <button className="bg-blue-700  rounded px-4 py-2 font-semibold mt-4 hover:bg-blue-800 transition">Calculate Shipping Cost</button>
+          <button
+            className="bg-blue-700 rounded px-4 py-2 font-semibold mt-4 hover:bg-blue-800 transition"
+            onClick={e => {
+              e.preventDefault();
+              setShowEstimates(true);
+            }}
+            type="button"
+            disabled={
+              !selectedRoute || !shippingMode ||
+              (shippingMode === 'air' && (!kg || kg <= 0)) ||
+              (shippingMode === 'sea' && (!container || (container === 'LCL' && (!volume || volume <= 0))))
+            }
+          >
+            Calculate Shipping Cost
+          </button>
         </Card>
 
         {/* Middle: Available Options */}

@@ -3,7 +3,7 @@
 import { useState } from 'react'; // This function is used to create and manage state in React components.
 import axios from 'axios'; // This function is used to make HTTP requests.
 import { toast } from 'react-hot-toast'; // This function is used to display toast notifications.
-import { pluralizeModel } from '@/utils/PluralizeModels'; // This function is used to pluralize model names.
+import { pluralizeModel } from '@/lib/utils/PluralizeModels'; // This function is used to pluralize model names.
 import { useRouter } from 'next/navigation';
 
 // Supported models and their fields

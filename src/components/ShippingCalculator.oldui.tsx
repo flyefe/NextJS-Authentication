@@ -3,7 +3,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRoutes, Route } from "@/hooks/useRoutes";
-import { calculateAllShippingOptions, ShippingEstimate } from "@/utils/shippingCalculator";
+import { calculateAllShippingOptions, ShippingEstimate } from "@/lib/utils/shippingCalculator";
 
 export default function ShippingCalculator() {
   const [direction, setDirection] = useState<"import" | "export">("import");
