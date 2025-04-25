@@ -21,12 +21,13 @@ export interface Route {
       seaRate?: any;
     };
   };
-  exchangeRate?: number; // <-- Added this line
+  exchangeRate?: number; // <--- Added this line
   currency?: string;
   active?: boolean;
   createdBy?: any;
   updatedBy?: any;
   updatedAt?: string;
+  goodsCategory?: string[]; // <--- Added this line to fix the error
 }
 
 export function useRoutes() {

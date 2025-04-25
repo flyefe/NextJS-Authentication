@@ -8,6 +8,7 @@ console.log("TEST LOG FROM FASTTRACK SHIPPING")
 export function calculateFastTrackShippingRate(
   route: Route,
   kg: number,
+  goodsCategory: string | null,
 ): number | null { 
   if (!route.shippingOptionConfig?.availableOptions?.fastTrackRate?.active) return null;
   const fastTrackConfig = route.shippingOptionConfig?.availableOptions?.fastTrackRate;
@@ -15,33 +16,40 @@ export function calculateFastTrackShippingRate(
   console.log("fastTrackConfig2:", fastTrackConfig) 
   //Import Logic
   let amount = 0;
+  let originCountry = route.originCountry?.name;
+  let destinationCountry = route.destinationCountry?.name;
   console.log("amount:", amount);
+  console.log("goodsCategory:", goodsCategory);
   if (route.category === "import") {
+    console.log("FastTrack status for Import:", route.category);
+    console.log("FastTrack status for originCountry:", originCountry);
     //China calculation for air
-    if (route.originCountry === "China" && route.destinationCountry === "Nigeria") {
-      console.log("fastTrackConfig:", fastTrackConfig);
-      if (fastTrackConfig.goodsCategory.includes("Has No Battery")) {
-        amount = ((kg * fastTrackConfig.ratePerKg) * (route.exchangeRate ?? 1)) + fastTrackConfig.customClearanceRatePerKg;
+    if (originCountry === "China" && destinationCountry === "Nigeria") {
+      console.log("fastTrackConfigChina:", fastTrackConfig);
+      if (goodsCategory && goodsCategory === "Has No Battery") {
+        amount = ((kg * fastTrackConfig.ratePerKg) * (route.exchangeRate ?? 1)) + (fastTrackConfig.customClearanceRatePerKg ?? 0) * kg;
         console.log("FastTrack rate for Has No Battery:", amount);
         return amount;
-      } else if (fastTrackConfig.goodsCategory.includes("Has Battery")) {
-        let amount = ((kg * fastTrackConfig.hasBatteryRate) * (route.exchangeRate ?? 1)) + fastTrackConfig.customClearanceRatePerKg;
+      } else if (goodsCategory && goodsCategory === "Has Battery") {
+        console.log("FastTrack status for Has Battery:", goodsCategory);
+        amount = ((kg * fastTrackConfig.hasBatteryRate) * (route.exchangeRate ?? 1)) + (fastTrackConfig.customClearanceRatePerKg ?? 0) * kg;
         console.log("FastTrack rate for Has Battery:", amount);
+        console.log("parameters involved:", fastTrackConfig.hasBatteryRate, route.exchangeRate, fastTrackConfig.customClearanceRatePerKg);
         return amount;
-      } else if (fastTrackConfig.goodsCategory.includes("Chemical")) {
-        let amount = ((kg * fastTrackConfig.hasChemicalRate) * (route.exchangeRate ?? 1)) + fastTrackConfig.customClearanceRatePerKg;
+      } else if (goodsCategory && goodsCategory === "Contain Chemical") {
+        let amount = ((kg * fastTrackConfig.hasChemicalRate) * (route.exchangeRate ?? 1)) + (fastTrackConfig.customClearanceRatePerKg ?? 0) * kg;
         return amount;
-      } else if (fastTrackConfig.goodsCategory.includes("Contain Food")) {
-        let amount = ((kg * fastTrackConfig.hasFoodRate) * (route.exchangeRate ?? 1)) + fastTrackConfig.customClearanceRatePerKg;
+      } else if (goodsCategory && goodsCategory === "Contain Food") {
+        let amount = ((kg * fastTrackConfig.hasFoodRate) * (route.exchangeRate ?? 1)) + (fastTrackConfig.customClearanceRatePerKg ?? 0) * kg;
         return amount;
-      } else if (fastTrackConfig.goodsCategory.includes("SpecialGoods")) {
-        const amount = ((kg * fastTrackConfig.specialGoodsRate) * (route.exchangeRate ?? 1)) + fastTrackConfig.customClearanceRatePerKg;
+      } else if (goodsCategory && goodsCategory === "SpecialGoods") {
+        const amount = ((kg * fastTrackConfig.specialGoodsRate) * (route.exchangeRate ?? 1)) + (fastTrackConfig.customClearanceRatePerKg ?? 0) * kg;
         return amount;
       }
       //Other countries (US, UK, Canada)
-    } else if (route.originCountry !== "China" && route.destinationCountry === "Nigeria") {
+    } else if (originCountry !== "China" && destinationCountry === "Nigeria") {
       // If goodsCategory contains food, use hasFoodRate for all slabs
-      if (fastTrackConfig.goodsCategory.includes("ContainFood") || fastTrackConfig.goodsCategory.includes("Food")) {
+      if (goodsCategory && (goodsCategory === "ContainFood" || goodsCategory === "Food")) {
         if (kg <= 5 && fastTrackConfig.hasFoodRate) {
           let amount = (fastTrackConfig.hasFoodRate * kg * (route.exchangeRate ?? 1));
           return amount;
@@ -83,9 +91,9 @@ export function calculateFastTrackShippingRate(
     //Export
     if (route.category === "export") {
         //To Other countries (US, UK, Canada)
-      if (route.originCountry === "Nigeria") {
+      if (originCountry === "Nigeria") {
         // If goodsCategory contains food, use hasFoodRate for all slabs
-        if (fastTrackConfig.goodsCategory.includes("ContainFood") || fastTrackConfig.goodsCategory.includes("Food")) {
+        if (fastTrackConfig.goodsCategory === "Contain Food" || fastTrackConfig.goodsCategory === "Food") {
           if (kg <= 5 && fastTrackConfig.hasFoodRate) {
             const amount = (fastTrackConfig.hasFoodRate * kg * (route.exchangeRate ?? 1)) + (fastTrackConfig.customClearanceRatePerKg ?? 0) * kg;
             return amount;

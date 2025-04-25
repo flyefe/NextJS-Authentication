@@ -68,17 +68,19 @@ export default function ShippingCalculator() {
         route: selectedRoute,
         kg: safeKg,
         volume: 0,
+        goodsCategory: selectedGoodsCategory,
         container: null
       });
-      // For air: pass kg, volume=0, container=null
-      estimates = calculateAllShippingOptions({ route: selectedRoute, kg: safeKg, volume: 0, container: null }).filter(e => e.option === "Express" || e.option === "Fast Track" || e.option === "Console");
+      // For air: pass kg, volume=0, container=null, and goodsCategory
+      estimates = calculateAllShippingOptions({ route: selectedRoute, kg: safeKg, volume: 0, container: null, goodsCategory: selectedGoodsCategory }).filter(e => e.option === "Express" || e.option === "Fast Track" || e.option === "Console");
     } else if (shippingMode === "sea") {
       // Log the parameters being sent for sea
       console.log("Calling calculateAllShippingOptions for SEA with:", {
         route: selectedRoute,
         kg: 0,
         volume: container === "LCL" ? volume : 0,
-        container: container || null
+        container: container || null,
+        goodsCategory: selectedGoodsCategory
       });
       // For sea: if LCL, pass volume and container; if FCL, pass container only
       if (container === "LCL") {
@@ -86,25 +88,28 @@ export default function ShippingCalculator() {
           route: selectedRoute,
           kg: 0,
           volume,
-          container
+          container,
+          goodsCategory: selectedGoodsCategory
         });
-        estimates = calculateAllShippingOptions({ route: selectedRoute, kg: 0, volume, container });
+        estimates = calculateAllShippingOptions({ route: selectedRoute, kg: 0, volume, container, goodsCategory: selectedGoodsCategory });
       } else if (container) {
         console.log("Calling calculateAllShippingOptions for SEA (FCL) with:", {
           route: selectedRoute,
           kg: 0,
           volume: 0,
-          container
+          container,
+          goodsCategory: selectedGoodsCategory
         });
-        estimates = calculateAllShippingOptions({ route: selectedRoute, kg: 0, volume: 0, container });
+        estimates = calculateAllShippingOptions({ route: selectedRoute, kg: 0, volume: 0, container, goodsCategory: selectedGoodsCategory });
       } else {
         console.log("Calling calculateAllShippingOptions for SEA (no container) with:", {
           route: selectedRoute,
           kg: 0,
           volume: 0,
-          container: null
+          container: null,
+          goodsCategory: selectedGoodsCategory
         });
-        estimates = calculateAllShippingOptions({ route: selectedRoute, kg: 0, volume: 0, container: null });
+        estimates = calculateAllShippingOptions({ route: selectedRoute, kg: 0, volume: 0, container: null, goodsCategory: selectedGoodsCategory });
       }
       // Only show sea options
       estimates = estimates.filter(e => e.option === "Sea");
@@ -120,12 +125,12 @@ export default function ShippingCalculator() {
 
   // --- UI Rendering ---
   return (
-    <div className="min-h-screen bg-gray-100 py-8">
+    <div className="bg-gray-100 p-2 m-6 max-h-screen w-full">
       <h1 className="text-2xl font-bold mb-8 text-gray-900 ml-8">Shipping Cost Calculator</h1>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-7xl mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-2 w-full">
         {/* Left: Route & Inputs */}
-        <Card className="p-4 flex flex-col gap-4">
-          <CardHeader>
+        <Card className="p-6 flex flex-col gap-6 shadow-2xl rounded-lg bg-white border border-gray-200">
+          <CardHeader className="mb-2">
             <CardTitle className="text-lg text-gray-900">Route</CardTitle>
           </CardHeader>
           {/* Step 1: Direction */}
@@ -171,24 +176,6 @@ export default function ShippingCalculator() {
               </RadioGroup>
             </div>
           )}
-          {/* Step 3.5: Goods Category (dynamic) */}
-          {selectedRoute && Array.isArray(selectedRoute.goodsCategory) && selectedRoute.goodsCategory.length > 0 && (
-            <div className="mb-2">
-              <label className="block text-sm mb-1 text-gray-900">Goods Category</label>
-              <RadioGroup
-                value={selectedGoodsCategory}
-                onValueChange={val => { setSelectedGoodsCategory(val); setShowEstimates(false); }}
-                className="flex flex-col gap-1"
-              >
-                {selectedRoute.goodsCategory.map((cat, idx) => (
-                  <div key={cat} className="flex items-center gap-2 text-gray-900">
-                    <RadioGroupItem value={cat} id={`goods-category-${idx}`} />
-                    <label htmlFor={`goods-category-${idx}`} className="text-sm text-gray-900">{cat}</label>
-                  </div>
-                ))}
-              </RadioGroup>
-            </div>
-          )}
           {/* Step 4: Mode-specific fields */}
           {selectedRoute && shippingMode === "air" && (
             <div className="mb-2">
@@ -227,6 +214,28 @@ export default function ShippingCalculator() {
               )}
             </>
           )}
+          {/* Step 5: Goods Category (dynamic)
+            Show only after shipping mode and its dynamic parameters are selected */}
+        {selectedRoute && Array.isArray(selectedRoute.goodsCategory) && selectedRoute.goodsCategory.length > 0 && (
+          (shippingMode === "air" && kg > 0) ||
+          (shippingMode === "sea" && container && (container !== "LCL" || (container === "LCL" && volume > 0)))
+        ) && (
+          <div className="mb-2">
+            <label className="block text-sm mb-1 text-gray-900">Goods Category</label>
+            <RadioGroup
+              value={selectedGoodsCategory}
+              onValueChange={val => { setSelectedGoodsCategory(val); setShowEstimates(false); }}
+              className="flex flex-col gap-1"
+            >
+              {selectedRoute.goodsCategory.map((cat, idx) => (
+                <div key={cat} className="flex items-center gap-2 text-gray-900">
+                  <RadioGroupItem value={cat} id={`goods-category-${idx}`} />
+                  <label htmlFor={`goods-category-${idx}`} className="text-sm text-gray-900">{cat}</label>
+                </div>
+              ))}
+            </RadioGroup>
+          </div>
+        )}
           <button
             className="bg-blue-700 rounded px-4 py-2 font-semibold mt-4 hover:bg-blue-800 transition"
             onClick={e => {
@@ -245,15 +254,15 @@ export default function ShippingCalculator() {
         </Card>
 
         {/* Middle: Available Options */}
-        <Card className="p-4">
-          <CardHeader>
+        <Card className="p-2 shadow-md rounded-lg bg-white border border-gray-200 mx-4 my-4">
+          <CardHeader className="mb-2">
             <CardTitle className="text-base text-gray-900">Available Options</CardTitle>
           </CardHeader>
-          <CardContent className="flex flex-col gap-2 text-black">
+          <CardContent className="flex flex-col gap-4 text-black">
             {estimates.map(est => (
               <Card
                 key={est.option}
-                className="border-2 border-gray-200 p-3 mb-2"
+                className="border-2 border-gray-200 p-3 mb-3 shadow-md rounded-lg bg-gray-50"
               >
                 <div className="flex flex-col gap-1">
                   <span className="font-semibold text-lg text-gray-900">{est.option.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase())}</span>
@@ -267,7 +276,7 @@ export default function ShippingCalculator() {
         </Card>
 
         {/* Right: Selected Option Details */}
-        <Card className="p-4">
+        <Card className="p-2 shadow-md rounded-lg bg-white border border-gray-200 mx-4 my-4">
           <CardHeader>
             <CardTitle className="text-base text-blue-900 flex items-center gap-2">
               <span className="text-gray-900">$</span>

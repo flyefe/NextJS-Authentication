@@ -9,6 +9,7 @@ console.log("TEST LOG FROM EXPRESS SHIPPING")
 export function calculateExpressShippingRate(
   route: Route,
   kg: number,
+  goodsCategory: string | null,
 ): number | null {
   // Check if express option is active
   const expressConfig = route.shippingOptionConfig?.availableOptions?.expressRate;

@@ -11,6 +11,7 @@ export interface ShippingCalculationParams {
   kg: number;
   volume: number;
   container: string | null;
+  goodsCategory: string | null;
   containers?: string[]; // Optional: for sea shipping multiple containers
 }
 
@@ -20,7 +21,7 @@ import { calculateConsoleShippingRate } from "./calculateConsoleShipping";
 import { calculateSeaShippingRate } from "./calculateSeaShipping";
 
 // Main utility function to calculate all relevant shipping options for a route
-export function calculateAllShippingOptions({ route, kg, volume, container, containers }: ShippingCalculationParams): ShippingEstimate[] {
+export function calculateAllShippingOptions({ route, kg, volume, container, containers, goodsCategory }: ShippingCalculationParams): ShippingEstimate[] {
   console.log("[calculateAllShippingOptions] received:", { route, kg, volume, container, containers });
   if (!route) return [];
   // Extract available options from shippingOptionConfig
@@ -38,19 +39,19 @@ export function calculateAllShippingOptions({ route, kg, volume, container, cont
   return options.map(option => {
     let amount = 0;
     if (option === "expressRate") {
-      amount = calculateExpressShippingRate(route, kg) ?? 0;
+      amount = calculateExpressShippingRate(route, kg, goodsCategory) ?? 0;
     } else if (option === "fastTrackRate") {
-      amount = calculateFastTrackShippingRate(route, kg) ?? 0;
+      amount = calculateFastTrackShippingRate(route, kg, goodsCategory) ?? 0;
     } else if (option === "consoleRate") {
-      amount = calculateConsoleShippingRate(route, kg) ?? 0;
+      amount = calculateConsoleShippingRate(route, kg, goodsCategory) ?? 0;
     } else if (option === "seaRate") {
       // Prefer containers array if provided, fallback to single container
       if (Array.isArray(containers) && containers.length > 0) {
-        amount = calculateSeaShippingRate(route, volume, containers) ?? 0;
+        amount = calculateSeaShippingRate(route, volume, containers, goodsCategory) ?? 0;
       } else if (container) {
-        amount = calculateSeaShippingRate(route, volume, [container]) ?? 0;
+        amount = calculateSeaShippingRate(route, volume, [container], goodsCategory) ?? 0;
       } else {
-        amount = calculateSeaShippingRate(route, volume, []) ?? 0;
+        amount = calculateSeaShippingRate(route, volume, [], goodsCategory) ?? 0;
       }
     }
     // Get eta from the corresponding config

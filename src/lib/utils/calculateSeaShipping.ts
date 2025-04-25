@@ -10,6 +10,7 @@ export function calculateSeaShippingRate(
   route: Route,
   volume: number,
   containers: string[],
+  goodsCategory: string | null,
 ): number | null {
   if (!route.shippingOptionConfig?.availableOptions?.seaRate?.active) return null;
   const seaConfig = route.shippingOptionConfig?.availableOptions?.seaRate;

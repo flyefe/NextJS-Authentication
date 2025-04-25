@@ -9,6 +9,7 @@ console.log("TEST LOG FROM CONSOLE SHIPPING")
 export function calculateConsoleShippingRate(
   route: Route,
   kg: number,
+  goodsCategory: string | null,
 ): number | null {
   if (!route.shippingOptionConfig?.availableOptions?.consoleRate?.active) return null;
   const consoleConfig = route.shippingOptionConfig?.availableOptions?.consoleRate;
