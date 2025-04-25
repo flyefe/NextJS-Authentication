@@ -37,46 +37,47 @@ export function calculateExpressShippingRate(
   // Find the appropriate rate for the kg
   // This is just a sample mapping logic—customize as needed!
   let amount = 0;
+  let baseRate = expressConfig.baseRate ?? 0;
   if (kg <= 0.5 && kgRates["0_5kg"]) {
     
     amount = (kgRates["0_5kg"] + (kgRates["0_5kg"] * subCharge) + (kgRates["0_5kg"] * vatPercent)) * (route.exchangeRate ?? 1);
-    return amount + 40000;
+    return amount + baseRate;
   };
   if (kg <= 1 && kgRates["1_0kg"]) {
     let amount = (kgRates["1_0kg"] + (kgRates["1_0kg"] * subCharge) + (kgRates["1_0kg"] * vatPercent)) * (route.exchangeRate ?? 1);
-    return amount + 40000;
+    return amount + baseRate;
   };
   if (kg <= 1.5 && kgRates["1_5kg"]) {
     let amount = (kgRates["1_5kg"] + (kgRates["1_5kg"] * subCharge) + (kgRates["1_5kg"] * vatPercent)) * (route.exchangeRate ?? 1);
-    return amount + 40000;
+    return amount + baseRate;
   };
   if (kg <= 2 && kgRates["2_0kg"]) {
     let amount = (kgRates["2_0kg"] + (kgRates["2_0kg"] * subCharge) + (kgRates["2_0kg"] * vatPercent)) * (route.exchangeRate ?? 1);
-    return amount + 40000;
+    return amount + baseRate;
   };
   if (kg <= 2.5 && kgRates["2_5kg"]) {
     let amount = (kgRates["2_5kg"] + (kgRates["2_5kg"] * subCharge) + (kgRates["2_5kg"] * vatPercent)) * (route.exchangeRate ?? 1);
-    return amount + 40000;
+    return amount + baseRate;
   };
   if (kg <= 3 && kgRates["3_0kg"]) {
     let amount = (kgRates["3_0kg"] + (kgRates["3_0kg"] * subCharge) + (kgRates["3_0kg"] * vatPercent)) * (route.exchangeRate ?? 1);
-    return amount;
+    return amount + baseRate;
   };
   if (kg <= 3.5 && kgRates["3_5kg"]) {
     let amount = (kgRates["3_5kg"] + (kgRates["3_5kg"] * subCharge) + (kgRates["3_5kg"] * vatPercent)) * (route.exchangeRate ?? 1);
-    return amount + 40000;
+    return amount + baseRate;
   };
   if (kg <= 4 && kgRates["4_0kg"]) {
     let amount = (kgRates["4_0kg"] + (kgRates["4_0kg"] * subCharge) + (kgRates["4_0kg"] * vatPercent)) * (route.exchangeRate ?? 1);
-    return amount + 40000;
+    return amount + baseRate;
   };
   if (kg <= 4.5 && kgRates["4_5kg"]) {
     let amount = (kgRates["4_5kg"] + (kgRates["4_5kg"] * subCharge) + (kgRates["4_5kg"] * vatPercent)) * (route.exchangeRate ?? 1);
-    return amount + 40000;
+    return amount + baseRate;
   };
   if (kg <= 5 && kgRates["5_0kg"]) {
     let amount = (kgRates["5_0kg"] + (kgRates["5_0kg"] * subCharge) + (kgRates["5_0kg"] * vatPercent)) * (route.exchangeRate ?? 1);
-    return amount + 40000;
+    return amount + baseRate;
   }
   
   // If above all ranges, use extraHalfKgRate if available
@@ -85,7 +86,7 @@ export function calculateExpressShippingRate(
     // Calculate how many extra half-kilos above 5kg
     const extra = Math.ceil((kg - 5) / 0.5);
     const amount = baseRate + extra * (kgRates["extraHalfKgRate"] + (kgRates["extraHalfKgRate"] * subCharge) + (kgRates["extraHalfKgRate"] * vatPercent)) * (route.exchangeRate ?? 1);
-    return amount + 40000;
+    return amount + baseRate;
   }
 
   // Fallback: return null if no rate found
