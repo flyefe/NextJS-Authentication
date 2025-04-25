@@ -17,6 +17,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 // 6. The returned estimates are displayed to the user
 
 export default function ShippingCalculator() {
+  // State for selected goods category
+  const [selectedGoodsCategory, setSelectedGoodsCategory] = useState<string>("");
   // --- State for user input ---
   // Step 1: Shipment direction (import/export)
   const [direction, setDirection] = useState<"import" | "export">("import");
@@ -166,6 +168,24 @@ export default function ShippingCalculator() {
                   <RadioGroupItem value="sea" id="sea" />
                   <label htmlFor="sea" className="text-sm text-gray-900">Sea</label>
                 </div>
+              </RadioGroup>
+            </div>
+          )}
+          {/* Step 3.5: Goods Category (dynamic) */}
+          {selectedRoute && Array.isArray(selectedRoute.goodsCategory) && selectedRoute.goodsCategory.length > 0 && (
+            <div className="mb-2">
+              <label className="block text-sm mb-1 text-gray-900">Goods Category</label>
+              <RadioGroup
+                value={selectedGoodsCategory}
+                onValueChange={val => { setSelectedGoodsCategory(val); setShowEstimates(false); }}
+                className="flex flex-col gap-1"
+              >
+                {selectedRoute.goodsCategory.map((cat, idx) => (
+                  <div key={cat} className="flex items-center gap-2 text-gray-900">
+                    <RadioGroupItem value={cat} id={`goods-category-${idx}`} />
+                    <label htmlFor={`goods-category-${idx}`} className="text-sm text-gray-900">{cat}</label>
+                  </div>
+                ))}
               </RadioGroup>
             </div>
           )}

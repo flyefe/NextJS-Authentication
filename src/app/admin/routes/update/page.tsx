@@ -33,6 +33,7 @@ export default function UpdateRoutePage() {
     destinationCity: "",
     currency: 'USD',
     exchangeRate: 1,
+    goodsCategory: ["Has Battery", "Has No Battery", "Contain Chemical", "Contain Food"],
     shippingOptionConfig: {
       availableOptions: {
         expressRate: {},
@@ -84,6 +85,7 @@ export default function UpdateRoutePage() {
             scope: toStringOrEmpty(raw.scope),
             currency: toStringOrEmpty(raw.currency),
             exchangeRate: toNumberOrZero(raw.exchangeRate),
+            goodsCategory: raw.goodsCategory || [],
             // Ensure all nested rate configs exist and numbers are numbers
             shippingOptionConfig: {
               availableOptions: {
@@ -111,7 +113,9 @@ export default function UpdateRoutePage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
-    if (type === "checkbox" && "checked" in e.target) {
+    if (name === 'goodsCategory') {
+      setForm((prev) => ({ ...prev, goodsCategory: value.split(',').map((s) => s.trim()) }));
+    } else if (type === "checkbox" && "checked" in e.target) {
       setForm((prev) => ({ ...prev, [name]: (e.target as HTMLInputElement).checked }));
     } else {
       setForm((prev) => ({ ...prev, [name]: value }));
@@ -164,6 +168,7 @@ export default function UpdateRoutePage() {
         scope,
         routeType,
         category,
+        goodsCategory,
         originCountry,
         originCity,
         destinationCountry,
@@ -179,6 +184,7 @@ export default function UpdateRoutePage() {
         scope,
         routeType: scope === "local" ? routeType : null,
         category,
+        goodsCategory,
         originCountry,
         originCity,
         destinationCountry,
@@ -222,6 +228,7 @@ export default function UpdateRoutePage() {
             <label className="block text-gray-900">Exchange Rate</label>
             <input type="number" name="exchangeRate" value={form.exchangeRate} onChange={handleChange} className="w-full border rounded px-3 py-2 bg-white text-gray-900" step="any" min="1" />
           </div>
+          {/* Currency */}
           <div className="space-y-2">
             <label className="block text-gray-900">Currency</label>
             <input type="text" name="currency" value={form.currency} onChange={handleChange} className="w-full border rounded px-3 py-2 bg-white text-gray-900" />
@@ -332,6 +339,18 @@ export default function UpdateRoutePage() {
                   type="text"
                   name="destinationCity"
                   value={form.destinationCity}
+                  onChange={handleChange}
+                  className="w-full p-2 border rounded bg-white text-gray-900"
+                />
+              </div>
+
+              {/* Goods Category */}
+              <div>
+                <label className="block font-semibold mb-1 text-gray-900">Goods Category (comma separated)</label>
+                <input
+                  type="text"
+                  name="goodsCategory"
+                  value={Array.isArray(form.goodsCategory) ? form.goodsCategory.join(', ') : ''}
                   onChange={handleChange}
                   className="w-full p-2 border rounded bg-white text-gray-900"
                 />

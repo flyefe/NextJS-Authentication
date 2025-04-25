@@ -1,3 +1,18 @@
+// RouteCreateForm.tsx
+//
+// This file defines the form UI and logic for creating or editing a shipping route in the admin panel.
+// The form is broken down into logical sections for basic route info, rate configuration, and shipping config.
+// Each section is encapsulated in its own component for clarity and reusability.
+//
+// Main Sections:
+// - BasicRouteInfoSection: Handles route name, type, origin/destination, currency, exchange rate, and goods category.
+// - OptionRateSection: Allows admin to configure rates for each available shipping option (e.g. Sea, Air, Fast Track).
+// - ShippingConfigSection: Handles advanced shipping configuration options.
+//
+// The main RouteCreateForm component manages the form state and handles submission.
+//
+// See comments throughout for more details on each section's responsibilities.
+
 import React, { useState } from 'react';
 import OptionRateSection from './OptionRateSection';
 import ShippingConfigSection from '../ShippingConfigSection';
@@ -28,6 +43,9 @@ interface User {
   email: string;
 }
 
+// Section 1: BasicRouteInfoSection
+// - Collects all the core route details: name, type, origin/destination, currency, exchange rate, and goods category.
+// - Handles user input and updates the main form state via setForm.
 const BasicRouteInfoSection = ({ form, setForm, countries, users }: {
   form: FormState;
   setForm: React.Dispatch<React.SetStateAction<FormState>>;
@@ -36,7 +54,9 @@ const BasicRouteInfoSection = ({ form, setForm, countries, users }: {
 }) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
-    if (type === 'checkbox' && 'checked' in e.target) {
+    if (name === 'goodsCategory') {
+      setForm((prev) => ({ ...prev, goodsCategory: value.split(',').map((s) => s.trim()) }));
+    } else if (type === 'checkbox' && 'checked' in e.target) {
       setForm((prev) => ({ ...prev, [name]: (e.target as HTMLInputElement).checked }));
     } else {
       setForm((prev) => ({ ...prev, [name]: value }));
@@ -136,7 +156,25 @@ const BasicRouteInfoSection = ({ form, setForm, countries, users }: {
             required
           />
         </div>
+
+        {/* Goods Category */}
+        <div>
+          <label className="block text-gray-700">Goods Category (comma separated)</label>
+          <input
+            type="text"
+            name="goodsCategory"
+            value={Array.isArray(form.goodsCategory) ? form.goodsCategory.join(', ') : ''}
+            onChange={handleChange}
+            className="w-full border rounded px-3 py-2 text-gray-900"
+          />
+        </div>
+        
         {/* Rate Configuration for Route Options */}
+        {/*
+           Section 2: OptionRateSection
+           - Lets the admin configure rates for each shipping option (e.g. Sea, Air, Fast Track).
+           - Tabs for each option, with a dedicated rate input form for each.
+         */}
         <div className="col-span-2">
           <h3 className="text-lg font-bold mb-2 mt-4">Configure Rates for Route Options</h3>
           <div className="mb-4">
@@ -328,6 +366,9 @@ const BasicRouteInfoSection = ({ form, setForm, countries, users }: {
 };
 
 // Main form component for creating a route
+//
+// RouteCreateForm is the top-level component that assembles all form sections, manages state, and handles submission.
+// It passes the form state and update functions down to each section.
 interface RouteCreateFormProps {
   countries: Country[];
   users: User[];

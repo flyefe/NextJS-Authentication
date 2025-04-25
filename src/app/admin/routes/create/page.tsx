@@ -116,7 +116,9 @@ export default function CreateRoutePage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
-    if (type === "checkbox" && 'checked' in e.target) {
+    if (name === 'goodsCategory') {
+      setForm(prev => ({ ...prev, goodsCategory: value.split(',').map((s) => s.trim()) }));
+    } else if (type === "checkbox" && 'checked' in e.target) {
       setForm(prev => ({ ...prev, [name]: (e.target as HTMLInputElement).checked }));
     } else {
       setForm(prev => ({ ...prev, [name]: value }));
@@ -179,6 +181,7 @@ export default function CreateRoutePage() {
       const {
         routeName, scope, routeType, category,
         originCountry, originCity, destinationCountry, destinationCity,
+        goodsCategory,
         currency, exchangeRate,
         shippingOptionConfig,
         active
@@ -192,6 +195,7 @@ export default function CreateRoutePage() {
         originCity,
         destinationCountry,
         destinationCity,
+        goodsCategory,
         shippingOptionConfig: {
           availableOptions: {
             expressRate: shippingOptionConfig.availableOptions.expressRate,

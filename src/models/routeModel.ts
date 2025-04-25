@@ -17,7 +17,7 @@ const ExpressRateSchema = new mongoose.Schema({
   extraHalfKgRate: { type: Number, default: 0 },
   subCharge: { type: Number, default: 0 },
   vatPercent: { type: Number, default: 0 },
-  goodsCategory: { type: [String], default: ["Has Battery", "Chemical", "Food"] },
+  goodsCategory: { type: [String], default: ["Has Battery", "Has No Battery", "Contain Chemical", "Contain Food"] },
   eta: { type: Number, default: 0 },
   active: { type: Boolean, default: false },
   baseRate: { type: Number, default: 40000 },
@@ -84,6 +84,8 @@ const RouteSchema = new mongoose.Schema({
   destinationAddress: { type: mongoose.Schema.Types.ObjectId, ref: 'Address' },
 
   shippingOptionConfig: { type: ShippingOptionConfigSchema, required: false },
+
+  goodsCategory: { type: [String], default: ["Has Battery", "Has No Battery", "Contain Chemical", "Contain Food"] },
   
   active: { type: Boolean, default: false },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },

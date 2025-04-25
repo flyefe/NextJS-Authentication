@@ -13,7 +13,7 @@ export function calculateFastTrackShippingRate(
   const fastTrackConfig = route.shippingOptionConfig?.availableOptions?.fastTrackRate;
   if (!fastTrackConfig || !fastTrackConfig.active) return null; 
   console.log("fastTrackConfig2:", fastTrackConfig) 
-  //Import
+  //Import Logic
   let amount = 0;
   console.log("amount:", amount);
   if (route.category === "import") {
@@ -31,7 +31,7 @@ export function calculateFastTrackShippingRate(
       } else if (fastTrackConfig.goodsCategory.includes("Chemical")) {
         let amount = ((kg * fastTrackConfig.hasChemicalRate) * (route.exchangeRate ?? 1)) + fastTrackConfig.customClearanceRatePerKg;
         return amount;
-      } else if (fastTrackConfig.goodsCategory.includes("ContainFood")) {
+      } else if (fastTrackConfig.goodsCategory.includes("Contain Food")) {
         let amount = ((kg * fastTrackConfig.hasFoodRate) * (route.exchangeRate ?? 1)) + fastTrackConfig.customClearanceRatePerKg;
         return amount;
       } else if (fastTrackConfig.goodsCategory.includes("SpecialGoods")) {
