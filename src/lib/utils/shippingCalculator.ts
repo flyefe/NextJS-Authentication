@@ -1,5 +1,5 @@
+"use client";
 import type { Route } from "@/hooks/useRoutes";
-
 export interface ShippingEstimate {
   option: string;
   amount: number;

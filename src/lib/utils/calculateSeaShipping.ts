@@ -4,6 +4,8 @@ import type { Route } from "@/hooks/useRoutes";
  * Calculate the sea shipping rate for a given route and weight/volume/container.
  * Returns null if sea is not available for this route.
  */
+
+console.log("TEST LOG FROM SEA SHIPPING") 
 export function calculateSeaShippingRate(
   route: Route,
   volume: number,
@@ -12,6 +14,7 @@ export function calculateSeaShippingRate(
   if (!route.shippingOptionConfig?.availableOptions?.seaRate?.active) return null;
   const seaConfig = route.shippingOptionConfig?.availableOptions?.seaRate;
   if (!seaConfig || !seaConfig.active) return null;
+  console.log("seaConfig:", seaConfig) 
 
   let total = 0;
   const exchangeRate = route.exchangeRate ?? 1;
