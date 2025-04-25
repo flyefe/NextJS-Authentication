@@ -89,6 +89,16 @@ const OptionRateSection: React.FC<OptionRateSectionProps> = ({ form, setForm, ra
             />
           </div>
           <div>
+            <label className="block text-gray-700">Base Rate</label>
+            <input
+              type="number"
+              name="baseRate"
+              value={form.baseRate ?? 0}
+              onChange={handleChange}
+              className="w-full border rounded px-3 py-2 text-gray-900"
+            />
+          </div>
+          <div>
             <label className="block text-gray-700">Goods Category (comma separated)</label>
             <input
               type="text"

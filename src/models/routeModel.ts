@@ -20,6 +20,7 @@ const ExpressRateSchema = new mongoose.Schema({
   goodsCategory: { type: [String], default: ["Has Battery", "Chemical", "Food"] },
   eta: { type: Number, default: 0 },
   active: { type: Boolean, default: false },
+  baseRate: { type: Number, default: 40000 },
 }, { _id: false });
 
 // Air Rate sub-schema
