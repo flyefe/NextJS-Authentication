@@ -25,6 +25,7 @@ const Login = () => {
     try {
       setLoading(true);
       await axios.post("/api/users/login", user);
+      localStorage.setItem("userChanged", Date.now().toString());
       router.refresh();
       router.push("/profile");
     } catch (error: any) {

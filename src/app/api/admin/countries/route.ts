@@ -22,8 +22,8 @@ async function getAdminUser(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
-  const adminUser = await getAdminUser(request);
-  if (!adminUser) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  //const adminUser = await getAdminUser(request);
+  //if (!adminUser) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const countries = await Country.find();
   return NextResponse.json({ countries });
 }

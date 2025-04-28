@@ -26,8 +26,8 @@ async function getAdminUser(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
-  const adminUser = await getAdminUser(request);
-  if (!adminUser) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  //const adminUser = await getAdminUser(request);
+  //if (!adminUser) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   // Support for filtering (optional, e.g. by country, active)
   const { searchParams } = new URL(request.url);

@@ -26,6 +26,7 @@ const ProfilePage = () => {
 
   const logout = async () => {
     await axiosInstance.get("/api/users/logout");
+    localStorage.setItem("userChanged", Date.now().toString());
     toast.success("Logged out successfully");
     router.push("/login");
   };
