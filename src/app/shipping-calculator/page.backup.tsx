@@ -1,5 +1,5 @@
 // BACKUP OF ORIGINAL shipping-calculator/page.tsx
-import ShippingCalculator from "@/components/ShippingCalculator";
+import ShippingCalculator from "@/components/ShippingCalculator/ShippingCalculator";
 
 export default function ShippingCalculatorPage() {
   return (
