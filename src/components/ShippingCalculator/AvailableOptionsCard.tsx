@@ -12,7 +12,8 @@ interface AvailableOptionsCardProps {
 
 export const AvailableOptionsCard: React.FC<AvailableOptionsCardProps> = ({ estimates, showEstimates }) => {
   return (
-    <Card className=" shadow-md rounded-lg bg-white border border-gray-200 mx-2 my-2">
+    <Card className="shadow-xl rounded-2xl bg-white/95 border border-blue-100 mx-1 my-2 p-2 md:p-4 transition-all w-full max-w-full">
+
       <CardHeader className="mb-2">
         <CardTitle className="text-base text-gray-900">Available Options</CardTitle>
       </CardHeader>

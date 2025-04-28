@@ -52,9 +52,11 @@ export const RouteCard: React.FC<RouteCardProps> = ({
   isCalculationDisabled,
 }) => {
   return (
-    <Card className="p-4 flex flex-col gap-6 shadow-2xl rounded-lg bg-white border border-gray-200">
-      <CardHeader className="mb-2">
-        <CardTitle className="text-lg text-gray-900">Route & Parameters</CardTitle>
+    <Card className="p-3 md:p-5 flex flex-col gap-4 md:gap-6 shadow-xl rounded-2xl bg-white/95 border border-blue-100 transition-all w-full max-w-full">
+
+      <CardHeader className="mb-1 md:mb-2 flex flex-col items-start">
+        <CardTitle className="text-lg md:text-2xl font-bold text-blue-900 tracking-tight mb-1">Route & Parameters</CardTitle>
+        <div className="w-16 h-1 bg-gradient-to-r from-blue-400 to-blue-200 rounded-full mb-2" />
       </CardHeader>
 
       {/* Step 1: Direction */}

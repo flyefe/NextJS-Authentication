@@ -11,7 +11,8 @@ interface DetailsCardProps {
 
 export const DetailsCard: React.FC<DetailsCardProps> = ({ selectedEstimate }) => {
   return (
-    <Card className="p-2 shadow-md rounded-lg bg-white border border-gray-200 mx-2 my-2">
+    <Card className="p-3 md:p-6 shadow-xl rounded-2xl bg-white/95 border border-blue-100 mx-1 my-2 transition-all w-full max-w-full">
+
       <CardHeader>
         <CardTitle className="text-base text-blue-900 flex items-center gap-2 w-full">
           {/* Using a placeholder icon, replace if you have a specific one */}
