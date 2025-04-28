@@ -35,7 +35,7 @@ export const AvailableOptionsCard: React.FC<AvailableOptionsCardProps> = ({ esti
           >
             <div className="flex flex-col gap-1">
               <span className="font-semibold text-lg text-gray-900">{est.option.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase())}</span>
-              <span className="text-l font-bold text-blue-900">₦{est.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+              <span className="text-xl font-bold text-blue-900">₦{est.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
               <span className="text-xs text-gray-600">ETA: {est.eta} business days</span>
               <span className="text-xs text-blue-700 underline cursor-pointer">View details</span> {/* Placeholder */}
             </div>
