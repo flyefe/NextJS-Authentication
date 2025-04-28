@@ -19,35 +19,24 @@ export function useUser() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchUser = async () => {
-    setLoading(true);
-    try {
-      const response = await axiosInstance.post("/api/users/me");
-      if (response.data && response.data.status && response.data.data) {
-        setUser(response.data.data);
-      } else {
-        setUser(null);
-      }
-    } catch (err: any) {
-      setUser(null);
-      setError(err.message || "Failed to fetch user");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Listen for login/logout events via localStorage
   useEffect(() => {
-    fetchUser();
-    const onStorage = (e: StorageEvent) => {
-      if (e.key === "userChanged") {
-        fetchUser();
+    const fetchUser = async () => {
+      try {
+        const response = await axiosInstance.post("/api/users/me");
+        if (response.data && response.data.status && response.data.data) {
+          setUser(response.data.data);
+        } else {
+          setUser(null);
+        }
+      } catch (err: any) {
+        setUser(null);
+        setError(err.message || "Failed to fetch user");
+      } finally {
+        setLoading(false);
       }
     };
-    window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
+    fetchUser();
   }, []);
 
   return { user, loading, error };
 }
-

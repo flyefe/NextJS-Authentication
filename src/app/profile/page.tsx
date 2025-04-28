@@ -2,7 +2,8 @@
 "use client"; // Use client-side rendering
 
 // Import React and hooks
-import React, { useState } from "react"; // This function is used to create and manage state in React components.
+import React, { useState } from "react";
+import LogoutButton from "@/components/ui/LogoutButton"; // This function is used to create and manage state in React components.
 
 // Import Next.js components and hooks
 import Link from "next/link"; // This function is used to create links in Next.js.
@@ -26,9 +27,8 @@ const ProfilePage = () => {
 
   const logout = async () => {
     await axiosInstance.get("/api/users/logout");
-    localStorage.setItem("userChanged", Date.now().toString());
     toast.success("Logged out successfully");
-    router.push("/login");
+    window.location.replace("/login");
   };
 
   return (
@@ -63,12 +63,7 @@ const ProfilePage = () => {
             Get User Details
           </button>
 
-          <button
-            onClick={logout}
-            className="text-white bg-blue-500 hover:bg-blue-700 font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
-          >
-            Logout
-          </button>
+          <LogoutButton />
         </div>
       </div>
     </div>

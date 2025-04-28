@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useUser } from "@/hooks/useUser";
+import LogoutButton from "@/components/ui/LogoutButton";
 
 export default function GlobalNavbar() {
   const { user, loading, error } = useUser();
@@ -54,6 +55,7 @@ export default function GlobalNavbar() {
           {/* Profile/Logout for mobile */}
           {user ? (
             <>
+              <LogoutButton className="flex items-center space-x-2 hover:bg-gray-100 px-3 py-2 rounded transition w-full mt-2" />
               <button
                 className="flex items-center space-x-2 hover:bg-gray-100 px-3 py-2 rounded transition w-full mt-2"
                 onClick={() => { router.push("/profile"); setMobileMenuOpen(false); }}
@@ -73,12 +75,7 @@ export default function GlobalNavbar() {
                     : user.username}
                 </span>
               </button>
-              <button
-                className="text-blue-700 font-semibold hover:underline w-full text-left px-3 py-2"
-                onClick={() => { router.push("/api/users/logout"); setMobileMenuOpen(false); }}
-              >
-                Logout
-              </button>
+              <LogoutButton className="text-blue-700 font-semibold hover:underline w-full text-left px-3 py-2" onClick={() => setMobileMenuOpen(false)} />
             </>
           ) : (
             <Link href="/login" className="block w-full py-2 px-2 rounded font-medium hover:bg-blue-50 text-blue-700" onClick={() => setMobileMenuOpen(false)}>Login</Link>
@@ -108,12 +105,7 @@ export default function GlobalNavbar() {
                   : user.username}
               </span>
             </button>
-            <button
-              className="text-blue-700 font-semibold hover:underline"
-              onClick={() => router.push("/api/users/logout")}
-            >
-              Logout
-            </button>
+            <LogoutButton className="text-blue-700 font-semibold hover:underline" />
           </div>
         ) : (
           <Link href="/login" className="text-blue-700 font-semibold hover:underline">Login</Link>
