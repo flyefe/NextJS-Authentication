@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import axiosInstance from "@/lib/utils/axiosInstance";
 
 export interface Country {
   _id: string;
@@ -17,12 +17,12 @@ export function useCountries() {
   useEffect(() => {
     setLoading(true);
     setError("");
-    axios
+    axiosInstance
       .get("/api/admin/countries", { withCredentials: true })
-      .then((res) => {
+      .then((res: { data: { countries?: Country[] } }) => {
         setCountries(res.data.countries || []);
       })
-      .catch((err) => {
+      .catch((err: any) => {
         setError(
           err.response?.data?.error || err.message || "Failed to fetch countries"
         );

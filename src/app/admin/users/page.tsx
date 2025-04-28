@@ -1,6 +1,6 @@
 'use client';
 
-import axios from "axios"; // For making HTTP requests to your API
+import axiosInstance from "@/lib/utils/axiosInstance"; // For making HTTP requests to your API
 import { toast } from "react-hot-toast"; // For showing notifications to the user
 import { useRouter } from "next/navigation"; // For navigation/redirection
 import { useEffect, useState } from 'react';
@@ -32,7 +32,7 @@ export default function AdminUsersPage() {
     // Check authentication and fetch users
     useEffect(() => {
         // Fetch users from the backend API
-        axios.get('/api/admin/users', { withCredentials: true }) // Sends cookies (JWT) for authentication
+        axiosInstance.get('/api/admin/users', { withCredentials: true }) // Sends cookies (JWT) for authentication
             .then(res => {
                 setUsers(res.data.users);
             })
@@ -55,7 +55,7 @@ export default function AdminUsersPage() {
     // Callback to refresh the users list after creating/updating/deleting a user
     const handleUserChanged = () => {
         setLoading(true);
-        axios.get('/api/admin/users', { withCredentials: true })
+        axiosInstance.get('/api/admin/users', { withCredentials: true })
             .then(res => {
                 setUsers(res.data.users);
             })
@@ -78,7 +78,7 @@ export default function AdminUsersPage() {
     // Function to open the update modal and fetch user data
     const openUpdateModal = async (userId) => {
         try {
-            const response = await axios.get(`/api/admin/users/${userId}`, { withCredentials: true });
+            const response = await axiosInstance.get(`/api/admin/users/${userId}`, { withCredentials: true });
             const userData = response.data.user;
             console.log('Fetched user data for update:', userData); // Log the fetched user data
             console.log('Selected user data for update:', userData);

@@ -11,6 +11,7 @@ export const metadata: Metadata = {
 };
 
 import GlobalNavbar from '@/components/GlobalNavbar';
+import SessionExpiredToast from '@/components/SessionExpiredToast';
 
 export default function RootLayout({
   children,
@@ -21,6 +22,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.className} bg-white min-h-screen`}> 
         <GlobalNavbar />
+        <SessionExpiredToast />
         {children}
       </body>
     </html>

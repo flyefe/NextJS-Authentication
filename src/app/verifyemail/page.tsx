@@ -3,7 +3,7 @@
 import React, { Suspense, useState } from "react";
 
 import Link from "next/link";
-import axios from "axios";
+import axiosInstance from "@/lib/utils/axiosInstance";
 import { useSearchParams } from "next/navigation";
 
 const VerifyEmail = () => {
@@ -16,7 +16,7 @@ const VerifyEmail = () => {
 
   const verifyEmail = async () => {
     try {
-      const response = await axios.post("/api/users/verifyemail", {
+      const response = await axiosInstance.post("/api/users/verifyemail", {
         token,
       });
       if (response.status === 200) {

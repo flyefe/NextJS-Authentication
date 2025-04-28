@@ -6,7 +6,7 @@ import React, { useState } from "react"; // This function is used to create and 
 
 // Import Next.js components and hooks
 import Link from "next/link"; // This function is used to create links in Next.js.
-import axios from "axios"; // This function is used to make HTTP requests.
+import axiosInstance from "@/lib/utils/axiosInstance"; // This function is used to make HTTP requests.
 import { toast } from "react-hot-toast"; // This function is used to display toast notifications.
 import { useRouter } from "next/navigation"; // This function is used to navigate between pages.
 
@@ -17,7 +17,7 @@ const ProfilePage = () => {
 
   const getUserDetails = async () => {
     try {
-      const response = await axios.post("/api/users/me");
+      const response = await axiosInstance.post("/api/users/me");
       setData(response.data.data._id);
     } catch (error: any) {
       toast.error(error.message);
@@ -25,7 +25,7 @@ const ProfilePage = () => {
   };
 
   const logout = async () => {
-    await axios.get("/api/users/logout");
+    await axiosInstance.get("/api/users/logout");
     toast.success("Logged out successfully");
     router.push("/login");
   };

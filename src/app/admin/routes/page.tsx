@@ -1,6 +1,6 @@
 'use client';
 
-import axios from "axios"; // For making HTTP requests to your API
+import axiosInstance from "@/lib/utils/axiosInstance"; // For making HTTP requests to your API
 import { toast } from "react-hot-toast"; // For showing notifications to the user
 import { useRouter } from "next/navigation"; // For navigation/redirection
 import { useEffect, useState } from 'react';
@@ -41,8 +41,8 @@ export default function AdminRoutesPage() {
     useEffect(() => {
         setLoading(true);
         Promise.all([
-            axios.get('/api/admin/routes', { withCredentials: true }),
-            axios.get('/api/admin/users', { withCredentials: true }),
+            axiosInstance.get('/api/admin/routes', { withCredentials: true }),
+            axiosInstance.get('/api/admin/users', { withCredentials: true }),
         ])
             .then(([routesRes, usersRes]) => {
                 console.log('Routes:', routesRes.data.routes); // Debug: Log routes data
@@ -66,7 +66,7 @@ export default function AdminRoutesPage() {
     // Callback to refresh the routes list after creating/updating/deleting a route
     const handleRouteChanged = () => {
         setLoading(true);
-        axios.get('/api/admin/routes', { withCredentials: true })
+        axiosInstance.get('/api/admin/routes', { withCredentials: true })
             .then(res => {
                 setRoutes(res.data.routes);
             })
@@ -108,7 +108,7 @@ export default function AdminRoutesPage() {
     const fetchRouteById = async (id: string) => {
         setLoading(true);
         try {
-            const res = await axios.get(`/api/admin/routes/${id}`, { withCredentials: true });
+            const res = await axiosInstance.get(`/api/admin/routes/${id}`, { withCredentials: true });
             setSelectedRoute(res.data.route);
         } catch (err: any) {
             setError(err?.response?.data?.error || err?.message || 'Failed to fetch route');
@@ -142,7 +142,7 @@ export default function AdminRoutesPage() {
     // Function to toggle the active status of a route
     const toggleActiveStatus = async (id: string, newStatus: boolean) => {
         try {
-            await axios.patch(`/api/admin/routes/${id}`, { active: newStatus }, { withCredentials: true });
+            await axiosInstance.patch(`/api/admin/routes/${id}`, { active: newStatus }, { withCredentials: true });
             toast.success(`Route ${newStatus ? 'activated' : 'deactivated'}`);
             handleRouteChanged(); // Refresh the routes list
         } catch (err: any) {

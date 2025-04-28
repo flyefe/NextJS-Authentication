@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import axiosInstance from "@/lib/utils/axiosInstance";
 
 export interface User {
   _id?: string;
@@ -22,7 +22,7 @@ export function useUser() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await axios.post("/api/users/me");
+        const response = await axiosInstance.post("/api/users/me");
         if (response.data && response.data.status && response.data.data) {
           setUser(response.data.data);
         } else {
