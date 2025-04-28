@@ -62,8 +62,9 @@ export default function ShippingCalculator() {
     }
   }
 
-  // Selected estimate (unchanged)
-  const selectedEstimate = estimates[0];
+  // Selected estimate logic
+  const [selectedOption, setSelectedOption] = useState<string | undefined>(undefined);
+  const selectedEstimate = estimates.find(e => e.option === selectedOption) || estimates[0];
 
   // Loading and error states
   if (loading) return <div className="p-4 text-gray-900">Loading routes...</div>;
@@ -157,7 +158,12 @@ export default function ShippingCalculator() {
           <div className="flex flex-col md:flex-row flex-1 gap-2 md:gap-4 overflow-x-auto">
             {/* Available Options (35% of right) */}
             <div className="md:basis-[35%] min-w-[200px]">
-              <AvailableOptionsCard estimates={estimates} showEstimates={showEstimates} />
+              <AvailableOptionsCard 
+                estimates={estimates} 
+                showEstimates={showEstimates}
+                selectedOption={selectedOption}
+                onSelect={(est) => setSelectedOption(est.option)}
+              />
             </div>
             {/* Details Card (65% of right) */}
             <div className="md:basis-[65%]">

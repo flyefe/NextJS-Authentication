@@ -9,7 +9,7 @@ export function calculateFastTrackShippingRate(
   route: Route,
   kg: number,
   goodsCategory: string | null,
-): number | null { 
+): { amount: number, calculationDetails: string } | null { 
   if (!route.shippingOptionConfig?.availableOptions?.fastTrackRate?.active) return null;
   const fastTrackConfig = route.shippingOptionConfig?.availableOptions?.fastTrackRate;
   if (!fastTrackConfig || !fastTrackConfig.active) return null; 
@@ -28,23 +28,24 @@ export function calculateFastTrackShippingRate(
       console.log("fastTrackConfigChina:", fastTrackConfig);
       if (goodsCategory && goodsCategory === "Has No Battery") {
         amount = ((kg * fastTrackConfig.ratePerKg) * (route.exchangeRate ?? 1)) + (fastTrackConfig.customClearanceRatePerKg ?? 0) * kg;
-        console.log("FastTrack rate for Has No Battery:", amount);
-        return amount;
+        const calculationDetails = `Formula: (kg * ratePerKg * exchangeRate) + (customClearanceRatePerKg * kg)\nValues: (${kg} * ${fastTrackConfig.ratePerKg} * ${route.exchangeRate ?? 1}) + (${fastTrackConfig.customClearanceRatePerKg ?? 0} * ${kg})`;
+        return { amount, calculationDetails };
       } else if (goodsCategory && goodsCategory === "Has Battery") {
-        console.log("FastTrack status for Has Battery:", goodsCategory);
         amount = ((kg * fastTrackConfig.hasBatteryRate) * (route.exchangeRate ?? 1)) + (fastTrackConfig.customClearanceRatePerKg ?? 0) * kg;
-        console.log("FastTrack rate for Has Battery:", amount);
-        console.log("parameters involved:", fastTrackConfig.hasBatteryRate, route.exchangeRate, fastTrackConfig.customClearanceRatePerKg);
-        return amount;
+        const calculationDetails = `Formula: (kg * hasBatteryRate * exchangeRate) + (customClearanceRatePerKg * kg)\nValues: (${kg} * ${fastTrackConfig.hasBatteryRate} * ${route.exchangeRate ?? 1}) + (${fastTrackConfig.customClearanceRatePerKg ?? 0} * ${kg})`;
+        return { amount, calculationDetails };
       } else if (goodsCategory && goodsCategory === "Contain Chemical") {
         let amount = ((kg * fastTrackConfig.hasChemicalRate) * (route.exchangeRate ?? 1)) + (fastTrackConfig.customClearanceRatePerKg ?? 0) * kg;
-        return amount;
+        const calculationDetails = `Formula: (kg * hasChemicalRate * exchangeRate) + (customClearanceRatePerKg * kg)\nValues: (${kg} * ${fastTrackConfig.hasChemicalRate} * ${route.exchangeRate ?? 1}) + (${fastTrackConfig.customClearanceRatePerKg ?? 0} * ${kg})`;
+        return { amount, calculationDetails };
       } else if (goodsCategory && goodsCategory === "Contain Food") {
         let amount = ((kg * fastTrackConfig.hasFoodRate) * (route.exchangeRate ?? 1)) + (fastTrackConfig.customClearanceRatePerKg ?? 0) * kg;
-        return amount;
+        const calculationDetails = `Formula: (kg * hasFoodRate * exchangeRate) + (customClearanceRatePerKg * kg)\nValues: (${kg} * ${fastTrackConfig.hasFoodRate} * ${route.exchangeRate ?? 1}) + (${fastTrackConfig.customClearanceRatePerKg ?? 0} * ${kg})`;
+        return { amount, calculationDetails };
       } else if (goodsCategory && goodsCategory === "SpecialGoods") {
         const amount = ((kg * fastTrackConfig.specialGoodsRate) * (route.exchangeRate ?? 1)) + (fastTrackConfig.customClearanceRatePerKg ?? 0) * kg;
-        return amount;
+        const calculationDetails = `Formula: (kg * specialGoodsRate * exchangeRate) + (customClearanceRatePerKg * kg)\nValues: (${kg} * ${fastTrackConfig.specialGoodsRate} * ${route.exchangeRate ?? 1}) + (${fastTrackConfig.customClearanceRatePerKg ?? 0} * ${kg})`;
+        return { amount, calculationDetails };
       }
       //Other countries (US, UK, Canada)
     } else if (originCountry !== "China" && destinationCountry === "Nigeria") {
@@ -52,15 +53,18 @@ export function calculateFastTrackShippingRate(
       if (goodsCategory && (goodsCategory === "ContainFood" || goodsCategory === "Food")) {
         if (kg <= 5 && fastTrackConfig.hasFoodRate) {
           let amount = (fastTrackConfig.hasFoodRate * kg * (route.exchangeRate ?? 1));
-          return amount;
+          const calculationDetails = `Formula: hasFoodRate * kg * exchangeRate\nValues: ${fastTrackConfig.hasFoodRate} * ${kg} * ${route.exchangeRate ?? 1}`;
+          return { amount, calculationDetails };
         }
         if (kg > 5 && kg <= 10 && fastTrackConfig.hasFoodRate) {
           let amount = (fastTrackConfig.hasFoodRate * kg * (route.exchangeRate ?? 1));
-          return amount;
+          const calculationDetails = `Formula: hasFoodRate * kg * exchangeRate\nValues: ${fastTrackConfig.hasFoodRate} * ${kg} * ${route.exchangeRate ?? 1}`;
+          return { amount, calculationDetails };
         }
         if (kg > 10 && fastTrackConfig.hasFoodRate) {
           let amount = (fastTrackConfig.hasFoodRate * kg * (route.exchangeRate ?? 1));
-          return amount;
+          const calculationDetails = `Formula: hasFoodRate * kg * exchangeRate\nValues: ${fastTrackConfig.hasFoodRate} * ${kg} * ${route.exchangeRate ?? 1}`;
+          return { amount, calculationDetails };
         }
         // fallback if hasFoodRate is not available
         return null;
@@ -68,20 +72,24 @@ export function calculateFastTrackShippingRate(
         // Use standard rates
         if (kg <= 5 && fastTrackConfig["1-5kg"]) {
           let amount = (fastTrackConfig["1-5kg"] * (route.exchangeRate ?? 1))
-          return amount;
+          const calculationDetails = `Formula: 1-5kg Slab Rate * exchangeRate\nValues: ${fastTrackConfig["1-5kg"]} * ${route.exchangeRate ?? 1}`;
+          return { amount, calculationDetails };
         }
         if (kg > 5 && kg <= 10 && fastTrackConfig["6-10kg"]) {
           let amount = (fastTrackConfig["6-10kg"] * (route.exchangeRate ?? 1))
-          return amount;
+          const calculationDetails = `Formula: 6-10kg Slab Rate * exchangeRate\nValues: ${fastTrackConfig["6-10kg"]} * ${route.exchangeRate ?? 1}`;
+          return { amount, calculationDetails };
         }
         if (kg > 10 && fastTrackConfig.ratePerKg) {
           let amount = ((kg * fastTrackConfig.ratePerKg) * (route.exchangeRate ?? 1))
-          return amount;
+          const calculationDetails = `Formula: kg * ratePerKg * exchangeRate\nValues: ${kg} * ${fastTrackConfig.ratePerKg} * ${route.exchangeRate ?? 1}`;
+          return { amount, calculationDetails };
         }
         // fallback to ratePerKg if slabs are missing
         if (fastTrackConfig.ratePerKg && kg > 10) {
           let amount = ((fastTrackConfig.ratePerKg * kg) * (route.exchangeRate ?? 1))
-          return amount;
+          const calculationDetails = `Formula: kg * ratePerKg * exchangeRate\nValues: ${kg} * ${fastTrackConfig.ratePerKg} * ${route.exchangeRate ?? 1}`;
+          return { amount, calculationDetails };
         }
         return null;
       }

@@ -4,6 +4,7 @@ export interface ShippingEstimate {
   option: string;
   amount: number;
   eta: number;
+  calculationDetails?: string;
 }
 
 export interface ShippingCalculationParams {
@@ -38,25 +39,31 @@ export function calculateAllShippingOptions({ route, kg, volume, container, cont
   };
   return options.map(option => {
     let amount = 0;
+    let calculationDetails: string | undefined = undefined;
     if (option === "expressRate") {
       amount = calculateExpressShippingRate(route, kg, goodsCategory) ?? 0;
     } else if (option === "fastTrackRate") {
-      amount = calculateFastTrackShippingRate(route, kg, goodsCategory) ?? 0;
+      const result = calculateFastTrackShippingRate(route, kg, goodsCategory);
+      amount = result?.amount ?? 0;
+      calculationDetails = result?.calculationDetails;
     } else if (option === "consoleRate") {
       amount = calculateConsoleShippingRate(route, kg, goodsCategory) ?? 0;
     } else if (option === "seaRate") {
       // Prefer containers array if provided, fallback to single container
+      let result;
       if (Array.isArray(containers) && containers.length > 0) {
-        amount = calculateSeaShippingRate(route, volume, containers, goodsCategory) ?? 0;
+        result = calculateSeaShippingRate(route, volume, containers, goodsCategory);
       } else if (container) {
-        amount = calculateSeaShippingRate(route, volume, [container], goodsCategory) ?? 0;
+        result = calculateSeaShippingRate(route, volume, [container], goodsCategory);
       } else {
-        amount = calculateSeaShippingRate(route, volume, [], goodsCategory) ?? 0;
+        result = calculateSeaShippingRate(route, volume, [], goodsCategory);
       }
+       amount = result?.amount ?? 0;
+      calculationDetails = result?.calculationDetails;
     }
     // Get eta from the corresponding config
     const config = route.shippingOptionConfig?.availableOptions?.[option];
     const eta = (config && typeof config.eta === "number") ? config.eta : 0;
-    return { option: optionLabels[option], amount, eta };
+    return { option: optionLabels[option], amount, eta, calculationDetails };
   });
 }

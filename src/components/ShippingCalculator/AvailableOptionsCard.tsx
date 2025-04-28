@@ -8,9 +8,11 @@ import type { ShippingEstimate } from "@/lib/utils/shippingCalculator"; // Assum
 interface AvailableOptionsCardProps {
   estimates: ShippingEstimate[];
   showEstimates: boolean;
+  selectedOption?: string;
+  onSelect: (estimate: ShippingEstimate) => void;
 }
 
-export const AvailableOptionsCard: React.FC<AvailableOptionsCardProps> = ({ estimates, showEstimates }) => {
+export const AvailableOptionsCard: React.FC<AvailableOptionsCardProps> = ({ estimates, showEstimates, selectedOption, onSelect }) => {
   return (
     <Card className="shadow-xl rounded-2xl bg-white/95 border border-blue-100 mx-1 my-2 p-2 md:p-4 transition-all w-full max-w-full">
 
@@ -30,14 +32,14 @@ export const AvailableOptionsCard: React.FC<AvailableOptionsCardProps> = ({ esti
         {showEstimates && estimates.map(est => (
           <Card
             key={est.option}
-            className="border-2 border-gray-200 p-3 mb-1 shadow-md rounded-lg bg-gray-50"
-            // Add onClick handler here if needed in the future to select an option
+            className={`border-2 p-3 mb-1 shadow-md rounded-lg bg-gray-50 cursor-pointer transition-all ${selectedOption === est.option ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-blue-400'}`}
+            onClick={() => onSelect(est)}
           >
             <div className="flex flex-col gap-1">
               <span className="font-semibold text-lg text-gray-900">{est.option.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase())}</span>
               <span className="text-xl font-bold text-blue-900">₦{est.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
               <span className="text-xs text-gray-600">ETA: {est.eta} business days</span>
-              <span className="text-xs text-blue-700 underline cursor-pointer">View details</span> {/* Placeholder */}
+              <span className="text-xs text-blue-700 underline cursor-pointer">View details</span>
             </div>
           </Card>
         ))}

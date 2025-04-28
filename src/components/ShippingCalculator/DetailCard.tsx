@@ -4,12 +4,14 @@
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import type { ShippingEstimate } from "@/lib/utils/shippingCalculator"; // Assuming type is exported
+import { useUser } from '@/hooks/useUser';
 
 interface DetailsCardProps {
   selectedEstimate: ShippingEstimate | undefined;
 }
 
 export const DetailsCard: React.FC<DetailsCardProps> = ({ selectedEstimate }) => {
+  const { user } = useUser();
   return (
     <Card className="p-3 md:p-6 shadow-xl rounded-2xl bg-white/95 border border-blue-100 mx-1 my-2 transition-all w-full max-w-full">
 
@@ -29,10 +31,31 @@ export const DetailsCard: React.FC<DetailsCardProps> = ({ selectedEstimate }) =>
         <div className="mb-4">
           <div className="font-semibold mb-2 text-gray-900">Calculation Summary</div>
           <div className="text-xs text-gray-700 bg-gray-50 p-2 rounded">
-             {selectedEstimate
-                ? "This shipping option is calculated based on your selected parameters. For a detailed breakdown, please provide your contact information below."
-                : "Select parameters and click 'Calculate' to see details."
-             }
+            {selectedEstimate ? (
+              user ? (
+                <div>
+                  <div className="font-semibold text-gray-900 mb-1">Breakdown</div>
+                  {selectedEstimate.calculationDetails ? (
+                    <>
+                      <div className="bg-gray-100 p-2 rounded text-xs mb-2">
+                        <pre className="whitespace-pre-wrap break-words text-xs">{selectedEstimate.calculationDetails}</pre>
+                      </div>
+                    </>
+                  ) : (
+                    <ul className="list-disc ml-4 text-xs text-gray-800">
+                      <li><span className="font-medium">Option:</span> {selectedEstimate.option.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase())}</li>
+                      <li><span className="font-medium">Amount:</span> ₦{selectedEstimate.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</li>
+                      <li><span className="font-medium">ETA:</span> {selectedEstimate.eta} business days</li>
+                      {selectedEstimate.notes && <li><span className="font-medium">Notes:</span> {selectedEstimate.notes}</li>}
+                    </ul>
+                  )}
+                </div>
+              ) : (
+                "This shipping option is calculated based on your selected parameters. For a detailed breakdown, please sign in or register."
+              )
+            ) : (
+              "Select parameters and click 'Calculate' to see details."
+            )}
           </div>
         </div>
         <button
