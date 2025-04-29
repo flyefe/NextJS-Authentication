@@ -14,13 +14,13 @@ const RateSchema = new mongoose.Schema({
   "4.0": Number,
   "4.5": Number,
   "5.0": Number
-}, { _id: false })
+}, { _id: false });
 
 const OptionRateSchema = new mongoose.Schema({
   "1-5kg": String,
   "6-10kg": String,
   "above10kg": String,
-}, { _id: false })
+}, { _id: false });
 
 const ShippingConfigSchema = new mongoose.Schema({
   availableOptions: [String],
@@ -36,13 +36,13 @@ const ShippingConfigSchema = new mongoose.Schema({
   "20ftRate": Number,
   "40ftRate": Number,
   customClearanceRate: Number,
-}, { _id: false })
+}, { _id: false });
 
 const CountrySchema = new mongoose.Schema({
-  name: String,
-  code: String,
-  export: ShippingConfigSchema,
-  import: ShippingConfigSchema,
-})
+  name: { type: String, required: true },
+  code: { type: String }, // ISO code (optional)
+  export: { type: ShippingConfigSchema },
+  importConfig: { type: ShippingConfigSchema }, // Changed from 'import' to avoid reserved keyword
+}, { timestamps: true });
 
-export default mongoose.models.Country || mongoose.model('Country', CountrySchema)
+export default mongoose.models.Country || mongoose.model('Country', CountrySchema);

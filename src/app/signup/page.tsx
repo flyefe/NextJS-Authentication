@@ -11,9 +11,14 @@ const SignUp = () => {
   const router = useRouter();
 
   const [user, setUser] = useState({
+    firstName: "",
+    lastName: "",
+    phoneNumber: "",
     email: "",
     password: "",
     username: "",
+    companyName: "",
+    companyEmail: "",
   });
   const [isValidData, setIsValidData] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -25,19 +30,25 @@ const SignUp = () => {
       const response = await axios.post("/api/users/signup", user);
       console.log("Sign Up successful", response.data);
 
+      toast.success("Registration successful! Please check your email to verify your account before logging in.");
       router.push("/login");
     } catch (error: any) {
       console.log("Sign up failed");
-      toast.error(error.message);
+      toast.error(error.response?.data.message || error.message);
       setLoading(false);
     }
   };
 
   useEffect(() => {
     setIsValidData(
+      user.firstName.length > 0 &&
+      user.lastName.length > 0 &&
+      user.phoneNumber.length > 0 &&
       user.email.length > 0 &&
-        user.password.length > 0 &&
-        user.username.length > 0
+      user.password.length > 0 &&
+      user.username.length > 0 &&
+      user.companyName.length > 0 &&
+      user.companyEmail.length > 0
     );
   }, [user]);
 
@@ -48,60 +59,96 @@ const SignUp = () => {
           {loading ? "Processing..." : "Sign Up"}
         </h1>
         <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="firstName" className="text-sm font-medium text-gray-600">First Name</label>
+              <input
+                id="firstName"
+                type="text"
+                value={user.firstName}
+                onChange={(e) => setUser((prev) => ({ ...prev, firstName: e.target.value }))}
+                placeholder="Enter your first name"
+                className="w-full p-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+              />
+            </div>
+            <div>
+              <label htmlFor="lastName" className="text-sm font-medium text-gray-600">Last Name</label>
+              <input
+                id="lastName"
+                type="text"
+                value={user.lastName}
+                onChange={(e) => setUser((prev) => ({ ...prev, lastName: e.target.value }))}
+                placeholder="Enter your last name"
+                className="w-full p-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+              />
+            </div>
+          </div>
           <div>
-            <label
-              htmlFor="username"
-              className="text-sm font-medium text-gray-600"
-            >
-              Username
-            </label>
+            <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-600">Phone Number</label>
+            <input
+              id="phoneNumber"
+              type="tel"
+              value={user.phoneNumber}
+              onChange={(e) => setUser((prev) => ({ ...prev, phoneNumber: e.target.value }))}
+              placeholder="Enter your phone number"
+              className="w-full p-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+            />
+          </div>
+          <div>
+            <label htmlFor="username" className="text-sm font-medium text-gray-600">Username</label>
             <input
               id="username"
               type="text"
               value={user.username}
-              onChange={(e) =>
-                setUser((prev) => ({ ...prev, username: e.target.value }))
-              }
+              onChange={(e) => setUser((prev) => ({ ...prev, username: e.target.value }))}
               placeholder="Enter your username"
               className="w-full p-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
             />
           </div>
-
           <div>
-            <label
-              htmlFor="email"
-              className="text-sm font-medium text-gray-600"
-            >
-              Email
-            </label>
+            <label htmlFor="email" className="text-sm font-medium text-gray-600">Email</label>
             <input
               id="email"
               type="text"
               value={user.email}
-              onChange={(e) =>
-                setUser((prev) => ({ ...prev, email: e.target.value }))
-              }
+              onChange={(e) => setUser((prev) => ({ ...prev, email: e.target.value }))}
               placeholder="Enter your email"
               className="w-full p-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
             />
           </div>
-
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="companyName" className="text-sm font-medium text-gray-600">Business/Company Name</label>
+              <input
+                id="companyName"
+                type="text"
+                value={user.companyName}
+                onChange={(e) => setUser((prev) => ({ ...prev, companyName: e.target.value }))}
+                placeholder="Enter your business or company name"
+                className="w-full p-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+              />
+            </div>
+            <div>
+              <label htmlFor="companyEmail" className="text-sm font-medium text-gray-600">Company Email</label>
+              <input
+                id="companyEmail"
+                type="email"
+                value={user.companyEmail}
+                onChange={(e) => setUser((prev) => ({ ...prev, companyEmail: e.target.value }))}
+                placeholder="Enter your company email"
+                className="w-full p-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+              />
+            </div>
+          </div>
           <div>
-            <label
-              htmlFor="password"
-              className="text-sm font-medium text-gray-600"
-            >
-              Password
-            </label>
+            <label htmlFor="password" className="text-sm font-medium text-gray-600">Password</label>
             <div className="relative">
               <input
                 id="password"
                 type={showPassword ? "text" : "password"}
                 autoComplete="new-password"
                 value={user.password}
-                onChange={(e) =>
-                  setUser((prev) => ({ ...prev, password: e.target.value }))
-                }
+                onChange={(e) => setUser((prev) => ({ ...prev, password: e.target.value }))}
                 placeholder="Enter your password"
                 className="w-full p-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
               />
