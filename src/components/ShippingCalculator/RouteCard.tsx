@@ -59,18 +59,24 @@ export const RouteCard: React.FC<RouteCardProps> = ({
         <div className="w-16 h-1 bg-gradient-to-r from-blue-400 to-blue-200 rounded-full mb-2" />
       </CardHeader>
 
-      {/* Step 1: Direction */}
-      <div className="flex gap-2 mb-2">
-        <RadioGroup value={direction} onValueChange={onDirectionChange} className="flex gap-2">
-          <div className="flex items-center gap-1 text-gray-900">
-            <RadioGroupItem value="import" id="import" />
-            <label htmlFor="import" className="text-sm text-gray-900">Import</label>
-          </div>
-          <div className="flex items-center gap-1 text-gray-900">
-            <RadioGroupItem value="export" id="export" />
-            <label htmlFor="export" className="text-sm text-gray-900">Export</label>
-          </div>
-        </RadioGroup>
+      {/* Step 1: Direction Tabs */}
+      <div className="flex gap-2 mb-4">
+        <button
+          type="button"
+          className={`flex items-center gap-2 px-4 py-2 rounded-t-lg font-semibold border-b-4 transition-all duration-150 focus:outline-none ${direction === "import" ? "border-blue-600 bg-blue-50 text-blue-900" : "border-transparent bg-gray-100 text-gray-500"}`}
+          onClick={() => onDirectionChange("import")}
+        >
+          <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="inline-block"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 16v2a2 2 0 002 2h14a2 2 0 002-2v-2M8 12l4 4m0 0l4-4m-4 4V4" /></svg>
+          Import
+        </button>
+        <button
+          type="button"
+          className={`flex items-center gap-2 px-4 py-2 rounded-t-lg font-semibold border-b-4 transition-all duration-150 focus:outline-none ${direction === "export" ? "border-blue-600 bg-blue-50 text-blue-900" : "border-transparent bg-gray-100 text-gray-500"}`}
+          onClick={() => onDirectionChange("export")}
+        >
+          <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="inline-block"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 8V6a2 2 0 00-2-2H5a2 2 0 00-2 2v2m16 0l-4-4m4 4l-4 4m4-4H3" /></svg>
+          Export
+        </button>
       </div>
 
       {/* Step 2: Route select */}
@@ -88,22 +94,24 @@ export const RouteCard: React.FC<RouteCardProps> = ({
         </Select>
       </div>
 
-      {/* Step 3: Shipping mode */}
+      {/* Step 3: Shipping mode with icons */}
       {selectedRoute && (
         <div className="mb-2">
           <label className="block text-sm mb-1 text-gray-900">Shipping Mode</label>
           <RadioGroup value={shippingMode} onValueChange={onShippingModeChange} className="flex gap-4">
-            <div className="flex items-center gap-1 text-gray-900">
+            <div className="flex items-center gap-2 text-gray-900">
               <RadioGroupItem value="air" id="air" />
+              <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="inline-block text-blue-500"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.5 18.5l-7-7a1 1 0 011.4-1.4l7 7a1 1 0 01-1.4 1.4zM21 15v-2a3 3 0 00-3-3h-4.18a3 3 0 01-2.12-.88l-3.82-3.83a1 1 0 011.42-1.42l3.82 3.83A5 5 0 0118 13v2a1 1 0 001 1h2a1 1 0 001-1z" /></svg>
               <label htmlFor="air" className="text-sm text-gray-900">Air</label>
             </div>
-            <div className="flex items-center gap-1 text-gray-900">
+            <div className="flex items-center gap-2 text-gray-900">
               <RadioGroupItem value="sea" id="sea" />
+              <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="inline-block text-blue-500"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 20v-2a4 4 0 014-4h10a4 4 0 014 4v2" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 8a4 4 0 01-8 0" /></svg>
               <label htmlFor="sea" className="text-sm text-gray-900">Sea</label>
             </div>
           </RadioGroup>
         </div>
-      )}
+      )} 
 
       {/* Step 4: Mode-specific fields */}
       {selectedRoute && shippingMode === "air" && (
@@ -168,7 +176,7 @@ export const RouteCard: React.FC<RouteCardProps> = ({
           >
             {selectedRoute.goodsCategory.map((cat, idx) => (
               <div key={cat} className="flex items-center gap-2 text-gray-900">
-                <RadioGroupItem value={cat} id={`goods-category-${idx}`} />
+                <RadioGroupItem value={cat} id={`goods-category-${idx}`} className="ring-2 ring-black ring-offset-2" />
                 <label htmlFor={`goods-category-${idx}`} className="text-sm text-gray-900">{cat}</label>
               </div>
             ))}

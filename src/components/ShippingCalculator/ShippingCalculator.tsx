@@ -72,8 +72,22 @@ export default function ShippingCalculator() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 p-2 md:p-6">
-      <header className="w-full flex flex-col items-center mb-8">
-        <h1 className="text-2xl md:text-4xl font-extrabold text-blue-900 tracking-tight drop-shadow-md text-center mt-4 mb-2">Shipping Cost Calculator</h1>
+      <header className="w-full flex flex-col items-center mb-8 relative">
+        {/* Decorative shipping icons */}
+        <div className="absolute left-0 top-0 md:-left-12 md:-top-8 opacity-40 pointer-events-none">
+          <svg width="48" height="48" fill="none" viewBox="0 0 48 48"><rect width="48" height="48" rx="12" fill="#e0f2fe"/><path d="M10 36l4-12h20l4 12" stroke="#2563eb" strokeWidth="2" fill="#93c5fd"/><rect x="20" y="20" width="8" height="8" rx="2" fill="#2563eb"/></svg>
+        </div>
+        <div className="absolute right-0 top-0 md:-right-12 md:-top-8 opacity-40 pointer-events-none">
+          <svg width="48" height="48" fill="none" viewBox="0 0 48 48"><circle cx="24" cy="24" r="24" fill="#f0fdf4"/><path d="M24 12l8 16H16l8-16z" fill="#22d3ee"/><circle cx="24" cy="32" r="4" fill="#059669"/></svg>
+        </div>
+        <div className="absolute left-1/2 -bottom-8 -translate-x-1/2 opacity-30 pointer-events-none">
+          <svg width="64" height="32" fill="none" viewBox="0 0 64 32"><ellipse cx="32" cy="16" rx="32" ry="16" fill="#fef9c3"/><rect x="28" y="12" width="8" height="8" rx="2" fill="#f59e42"/></svg>
+        </div>
+        <h1 className="text-2xl md:text-4xl font-extrabold text-blue-900 tracking-tight drop-shadow-md text-center mt-4 mb-2 flex items-center gap-3">
+          <svg width="36" height="36" fill="none" viewBox="0 0 36 36" className="inline-block"><rect width="36" height="36" rx="8" fill="#dbeafe"/><path d="M9 27l3-9h12l3 9" stroke="#2563eb" strokeWidth="2" fill="#93c5fd"/></svg>
+          Shipping Cost Calculator
+          <svg width="32" height="32" fill="none" viewBox="0 0 32 32" className="inline-block"><circle cx="16" cy="16" r="16" fill="#f0fdf4"/><path d="M16 8l6 12H10l6-12z" fill="#22d3ee"/><circle cx="16" cy="24" r="3" fill="#059669"/></svg>
+        </h1>
         <p className="text-gray-600 text-sm md:text-base text-center max-w-2xl">Instantly estimate your international shipping costs. Choose your route, mode, and options for transparent, up-to-date pricing.</p>
       </header>
       <div className="flex flex-col md:flex-row w-full max-w-7xl mx-auto gap-4 md:gap-6" style={{ minHeight: '70vh' }}>
