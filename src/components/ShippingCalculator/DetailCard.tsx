@@ -2,6 +2,7 @@
 "use client";
 
 import React from 'react';
+import Link from 'next/link';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import type { ShippingEstimate } from "@/lib/utils/shippingCalculator"; // Assuming type is exported
 import { useUser } from '@/hooks/useUser';
@@ -51,7 +52,11 @@ export const DetailsCard: React.FC<DetailsCardProps> = ({ selectedEstimate }) =>
                   )}
                 </div>
               ) : (
-                "This shipping option is calculated based on your selected parameters. For a detailed breakdown, please sign in or register."
+                <span>
+                  This shipping option is calculated based on your selected parameters. For a detailed breakdown, please{' '}
+                  <Link href="/login" className="text-blue-700 underline hover:text-blue-900">sign in</Link> or{' '}
+                  <Link href="/signup" className="text-blue-700 underline hover:text-blue-900">register</Link>.
+                </span>
               )
             ) : (
               "Select parameters and click 'Calculate' to see details."
